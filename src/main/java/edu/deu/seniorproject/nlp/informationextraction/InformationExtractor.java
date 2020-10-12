@@ -40,11 +40,11 @@ public class InformationExtractor {
 	private Tokenizer tokenizer;
 	private PatternMatcher pm;
 
-	// PATTERN MATCHING INFORMATIONS
+	// PATTERN MATCHING INFORMATION
 	private final int minMatchCount;
 	private final int maxTokenMatch;
 
-	// RESULT LIST
+	// RESULT LISTS
 	private Set<String> result;
 	private Set<String> lemmatizedResult;
 
@@ -71,7 +71,7 @@ public class InformationExtractor {
 		// COMPLETE MATCH
 		completeMatchList = new ArrayList<>();
 		completeMatchList.add(new Pattern(NOUN, VERB));
-		// SINLGE MATCH
+		// SINGLE MATCH
 		singleMatchList = new ArrayList<>();
 		singleMatchList.add(new Pattern(NUM, TIME, VERB));
 		singleMatchList.add(new Pattern(NUM, TIME, NOUN));
@@ -162,23 +162,30 @@ public class InformationExtractor {
 				count++;
 			}
 		}
+		/*
+		 * If token size <= 6 : half of the token size (example: token size=5, check for 2)
+		 * If token size > 6: Check for 6
+		 *
+		 * Check if count is bigger than min(maxTokenMatch, check_from_above)
+		 * If true, tokens pass the patternMatching rulebook
+		 */
 		return count > Math.min(maxTokenMatch, tokens.size() <= 6 ? tokens.size() / 2 : 6);
 	}
 
 	/**
-	 * Check if comma seperated parts of a sentence passes the test.
-	 * @param commaSeperated List of comma seperated parts of a sentence.
-	 * @return True if each comma seperated part of a sentence passes the test,
+	 * Check if comma separated parts of a sentence passes the test.
+	 * @param commaSeparated List of comma separated parts of a sentence.
+	 * @return True if each comma separated part of a sentence passes the test,
 	 * 		   false if even one of them fails.
 	 */
-	private boolean checkSeperatedStrings(String[] commaSeperated) {
-		if (commaSeperated.length < 2) {
+	private boolean checkSeparatedStrings(String[] commaSeparated) {
+		if (commaSeparated.length < 2) {
 			return false;
 		}
 		boolean flag = true;
-		for (String commaSeperatedSentence : commaSeperated) {
+		for (String commaSeparatedSentence : commaSeparated) {
 			tokenizer.clearTokens();
-			tokenizer.tokenize(commaSeperatedSentence);
+			tokenizer.tokenize(commaSeparatedSentence);
 			flag &= checkTokensMatching(tokenizer.getTokens());
 		}
 		return flag;
@@ -197,12 +204,12 @@ public class InformationExtractor {
 		if (stopWordRemover.isErrorFree()) {
 			sentence = stopWordRemover.removeStopWords(sentence);
 		}
-		String[] commaSeperated = sentence.split(",");
-		if (checkSeperatedStrings(commaSeperated)) {
-			// All comma seperated sentences are matched by pattern rules. Include them
+		String[] commaSeparated = sentence.split(",");
+		if (checkSeparatedStrings(commaSeparated)) {
+			// All comma separated sentences are matched by pattern rules. Include them
 			// as different sentences.
-			for (String commaSeperatedSentence : commaSeperated) {
-				addToLists(commaSeperatedSentence);
+			for (String commaSeparatedSentence : commaSeparated) {
+				addToLists(commaSeparatedSentence);
 			}
 		} else {
 			// At least ONE of the comma seperated sentence doesn't match pattern matching rules.
@@ -275,7 +282,7 @@ public class InformationExtractor {
 		this.fileName = filename;
 		List<String> lines = new ArrayList<>();
 		try (BufferedReader br = new BufferedReader(new FileReader(new File(filename)))) {
-			String line = "";
+			String line;
 			while ((line = br.readLine()) != null) {
 				lines.add(line);
 			}

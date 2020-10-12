@@ -53,6 +53,7 @@ public class Driver {
 
 	private void htmlParse() throws IOException, InterruptedException, ProcessException {
 		// Number of rows to be read
+		// n = -1 for all file
 		int n = 15000;
 		// Source file name
 		String fileName = "dataset.xlsx";
