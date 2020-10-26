@@ -8,6 +8,27 @@ namespace KariyerDotNet
 {
     class Program
     {
+
+        public struct ListItem
+        {
+     
+            public string id { get; }
+            public List<string> text { get; }
+            public string exp { get; }
+            public string maxExp { get; }
+
+            public string jobInfo { get; }
+
+            public ListItem(string id, List<string> text, string exp, string maxExp, string jobInfo)
+            {
+                this.id = id;
+                this.text = text;
+                this.exp = exp;
+                this.maxExp = maxExp;
+                this.jobInfo = jobInfo;
+            }
+        }
+
         public static List<List<string>> ilanlar = new List<List<string>>();
         public static List<List<string>> SWkelimeler = new List<List<string>>();
         public static List<List<string>> STkelimeler = new List<List<string>>();
@@ -18,6 +39,7 @@ namespace KariyerDotNet
             if (args == null)
             {
                 Console.Error.WriteLine("args is null");
+                return;
             }
             else if (args.Length < 2 || !Int32.TryParse(args[0], out n))
             {
@@ -27,7 +49,17 @@ namespace KariyerDotNet
                 //Stop execution
                 return;
             }
-            testFileWrite(n, args[1]);
+            ParseHtmlFirstNItems(args[1], n);
+        }
+
+        public static void ParseHtml(string filePath)
+        {
+            ParseHtmlFirstNItems(filePath, 15000);
+        }
+
+        public static void ParseHtmlFirstNItems(string filePath, int n)
+        {
+            testFileWrite(n, filePath);
         }
 
         public static void testFileWrite(int n, string filePath)
@@ -50,7 +82,7 @@ namespace KariyerDotNet
                 //Reading from a OpenXml Excel file (2007 format; *.xlsx)
                 excelReader = ExcelReaderFactory.CreateOpenXmlReader(stream);
             }
-            List<List<string>> parsedLists = new List<List<string>>();
+            List<ListItem> parsedLists = new List<ListItem>();
             excelReader.Read();
             if(n < 0 || n > excelReader.RowCount)
             {
@@ -61,20 +93,28 @@ namespace KariyerDotNet
             {
                 excelReader.Read();
                 string text = excelReader.GetString(7).ToString();
-                parsedLists.Add(HtmlToListParser.parse(text));
+                string id = excelReader.GetDouble(2).ToString();
+                string exp = excelReader.GetDouble(3).ToString();
+                string maxExp = excelReader.GetDouble(4).ToString();
+                string jobInfo = excelReader.GetString(6).ToString();
+
+                ListItem item = new ListItem(id, HtmlToListParser.parse(text), exp, maxExp, jobInfo);
+                parsedLists.Add(item);
             }
             excelReader.Close();
             string outputFilePath = "parse.txt";
             using (System.IO.StreamWriter file =
                 new System.IO.StreamWriter(outputFilePath))
             {
-                foreach (var list in parsedLists)
+                string delimiter = "-_-";
+                foreach (var listItem in parsedLists)
                 {
-                    foreach (string item in list)
+                    foreach (string text in listItem.text)
                     {
-                        if (!String.IsNullOrEmpty(item))
+                        if (!String.IsNullOrEmpty(text))
                         {
-                            file.WriteLine(item.Trim());
+                            string line = listItem.id + delimiter + listItem.exp + delimiter + listItem.maxExp + delimiter + listItem.jobInfo + delimiter + text;
+                            file.WriteLine(line.Trim());
                         }
                     }
                 }

@@ -14,7 +14,7 @@ public interface Lemmatizer {
 	 * @param sentence Sentence to break to its lemmas
 	 */
 
-	void lemmatizeSentence(String sentence, boolean removePunc);
+	void lemmatizeSentence(String sentence, boolean removePunctuation);
 	
 	/**
 	 * Returns a list of pos tags from the lemmatization.

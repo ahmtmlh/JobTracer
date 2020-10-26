@@ -34,7 +34,7 @@ public class TurkishLemmatizer implements Lemmatizer {
 	}
 
 	@Override
-	public void lemmatizeSentence(String sentence, boolean removePunc) {
+	public void lemmatizeSentence(String sentence, boolean removePunctuation) {
 		sentence = sentence.replace("·", "");
 		List<WordAnalysis> analysis = morphology.analyzeSentence(sentence);
 		for (int i = 0; i < analysis.size(); i++) {
@@ -45,9 +45,9 @@ public class TurkishLemmatizer implements Lemmatizer {
 			 * !current.getAnalysisResult.isEmpty() && !current.getAnalysisResult.get(0).isUnknown()
 			 */
 			if (current.isCorrect()) {
-				// If an option for remove punctiation is given AND pos tag of the word is punctiation
+				// If an option for remove punctuation is given AND pos tag of the word is punctuation
 				// don't include it.
-				if (removePunc && current.getAnalysisResults().get(0).getPos() == PrimaryPos.Punctuation) {
+				if (removePunctuation && current.getAnalysisResults().get(0).getPos() == PrimaryPos.Punctuation) {
 					continue;
 				}
 				if (edgeCaseWords.containsKey(current.getNormalizedInput().toLowerCase())) {

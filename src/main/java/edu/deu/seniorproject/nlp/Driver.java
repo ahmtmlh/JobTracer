@@ -1,4 +1,7 @@
-package edu.deu.seniorproject.nlp.informationextraction;
+package edu.deu.seniorproject.nlp;
+
+import edu.deu.seniorproject.nlp.informationextraction.InformationExtractor;
+import edu.deu.seniorproject.nlp.informationextraction.ProcessException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -54,10 +57,10 @@ public class Driver {
 	private void htmlParse() throws IOException, InterruptedException, ProcessException {
 		// Number of rows to be read
 		// n = -1 for all file
-		int n = 15000;
+		int n = 20000;
 		// Source file name
 		String fileName = "dataset.xlsx";
-		Process p = Runtime.getRuntime().exec(String.format("html-parse/KariyerDotNet.exe %d %s", n, fileName));
+		Process p = Runtime.getRuntime().exec(String.format("html-parse/HtmlToListParser.exe %d %s", n, fileName));
 		while(p.isAlive()) {
 			// Sleep while waiting for the process to exit, instead of lazy looping
 			Thread.sleep(250);

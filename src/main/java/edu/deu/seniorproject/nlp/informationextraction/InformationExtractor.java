@@ -7,10 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import edu.deu.seniorproject.nlp.morphology.StopWordRemover;
 import edu.deu.seniorproject.nlp.morphology.lemmatization.Lemmatizer;
@@ -30,6 +27,7 @@ public class InformationExtractor {
 	private String saveFileName;
 	
 	// LIST THAT ARE USED FOR PATTERN MATCHING
+	// Priority = CompleteMatch > SingleMatch > MultipleMatch
 	private List<Pattern> completeMatchList;
 	private List<Pattern> singleMatchList;
 	private List<Pattern> multipleMatchList;
@@ -44,9 +42,10 @@ public class InformationExtractor {
 	private final int minMatchCount;
 	private final int maxTokenMatch;
 
-	// RESULT LISTS
+	// RESULT LISTS / SETS
 	private Set<String> result;
 	private Set<String> lemmatizedResult;
+	private List<ListItem> extraInfoResult;
 
 	public InformationExtractor(int minMatchCount) {
 		init();
@@ -65,6 +64,7 @@ public class InformationExtractor {
 		// HashSet is used for retaining the insertion order, and eliminating duplications.
 		result = new LinkedHashSet<>();
 		lemmatizedResult = new LinkedHashSet<>();
+		extraInfoResult = new ArrayList<>();
 	}
 
 	private void initLists() {
@@ -128,7 +128,7 @@ public class InformationExtractor {
 			completeMatch |= pm.completePatternMatch(posTags, pattern);
 		}
 		if (!completeMatch) {
-			// Cheeck for single pattern matches
+			// Check for single pattern matches
 			for (Pattern pattern : singleMatchList) {
 				singleMatch |= pm.checkPattern(posTags, pattern);
 			}
@@ -156,6 +156,7 @@ public class InformationExtractor {
 	private boolean checkTokensMatching(List<String> tokens) {
 		int count = 0;
 		for (String token : tokens) {
+			token = removePunctuation(token);
 			lemmatizer.flush();
 			lemmatizer.lemmatizeSentence(token, true);
 			if (matchPattern(lemmatizer.getPosTags(), tokens.size())) {
@@ -193,9 +194,10 @@ public class InformationExtractor {
 
 	/**
 	 * Extract information from a sentence
-	 * @param sentence A sentence in String form.
+	 * @param item A sentence in ListItem form. Contains extra information like ID and experience
 	 */
-	public void extractFromString(String sentence) {
+	public void extractFromString(ListItem item) {
+		String sentence = item.text;
 		// If sentence is blank, do nothing.
 		if(sentence.trim().isEmpty()) {
 			return;
@@ -209,15 +211,15 @@ public class InformationExtractor {
 			// All comma separated sentences are matched by pattern rules. Include them
 			// as different sentences.
 			for (String commaSeparatedSentence : commaSeparated) {
-				addToLists(commaSeparatedSentence);
+				addToLists(commaSeparatedSentence, item);
 			}
 		} else {
-			// At least ONE of the comma seperated sentence doesn't match pattern matching rules.
+			// At least ONE of the comma separated sentence doesn't match pattern matching rules.
 			// Check for the original sentence, and add it to list if it matches rules.
 			tokenizer.clearTokens();
 			tokenizer.tokenize(sentence);
 			if (checkTokensMatching(tokenizer.getTokens())) {
-				addToLists(sentence);
+				addToLists(sentence, item);
 			}
 		}
 	}
@@ -225,13 +227,14 @@ public class InformationExtractor {
 	/*
 	 * Adding successful strings to result lists.
 	 */
-	private void addToLists(String str) {
+	private void addToLists(String str, ListItem item) {
+		str = removePunctuation(str);
 		lemmatizer.flush();
 		lemmatizer.lemmatizeSentence(str, true);
-		str = removePunctuation(str);
 		if(!lemmatizedResult.contains(lemmatizer.getLemmatizedSentence().trim()) && !result.contains(str)) {
 			lemmatizedResult.add(lemmatizer.getLemmatizedSentence().trim());
 			result.add(str);
+			extraInfoResult.add(item);
 		}
 	}
 	
@@ -246,7 +249,7 @@ public class InformationExtractor {
 	 */
 	private String removePunctuation(String str) {
 		// "\\p{P}" -> This removes punctuation. 
-		return str.replace(",", "").replace(".", "")
+		return str.replace("•", "").replace("...", "")
 				.replace("(", "").replace(")", "")
 				.replace("{", "").replace("}", "")
 				.replace("[", "").replace("]", "")
@@ -264,11 +267,11 @@ public class InformationExtractor {
 	/**
 	 * Extract information from list of sentences.
 	 * This function ultimately calls the "extractFromString" function.
-	 * @param sentences List of sentences.
+	 * @param items List of sentences, with extra information.
 	 */
-	public void extractFromList(List<String> sentences) {
-		for (String sentence : sentences) {
-			extractFromString(sentence);
+	public void extractFromList(List<ListItem> items) {
+		for (ListItem item : items) {
+			extractFromString(item);
 			//System.out.printf("Line: %d/%d%n", i, n);
 		}
 	}
@@ -280,11 +283,11 @@ public class InformationExtractor {
 	 */
 	public void extractFromFile(String filename) {
 		this.fileName = filename;
-		List<String> lines = new ArrayList<>();
+		List<ListItem> lines = new ArrayList<>();
 		try (BufferedReader br = new BufferedReader(new FileReader(new File(filename)))) {
 			String line;
 			while ((line = br.readLine()) != null) {
-				lines.add(line);
+				lines.add(ListItem.parse(line));
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -307,8 +310,12 @@ public class InformationExtractor {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		// Lemmatized result will also contain exp and id information
 		try(BufferedWriter bw = new BufferedWriter(new FileWriter(new File(filename+".lm.txt")))){
+			int i = 0;
 			for (String res : lemmatizedResult) {
+				ListItem item = extraInfoResult.get(i++);
+				res = item.id + ";" + item.exp + ";" + item.maxExp + ";" + item.jobInfo + ";" + res;
 				bw.write(res);
 				bw.newLine();
 			}
@@ -321,6 +328,10 @@ public class InformationExtractor {
 		saveToFile("ie-result");
 	}
 
+	public List<String> getLemmatizedResults(){
+		return new ArrayList<>(this.lemmatizedResult);
+	}
+
 	/**
 	 * Delete temporary files that have been used by this tool.
 	 * Files can't recover after deletion.
@@ -330,6 +341,36 @@ public class InformationExtractor {
 		java.nio.file.Files.delete(Paths.get(this.saveFileName + ".lm.txt"));
 		java.nio.file.Files.delete(Paths.get(this.fileName));
 	}
-	
+
+
+	private static class ListItem{
+
+		private static final String DELIMITER = "-_-";
+
+		String id;
+		int exp;
+		int maxExp;
+		String text;
+		String jobInfo;
+
+		ListItem(String id, int exp, int maxExp, String jobInfo, String text){
+			this.id = id;
+			this.exp = exp;
+			this.maxExp = maxExp;
+			this.text = text;
+			this.jobInfo = jobInfo;
+		}
+
+		public static ListItem parse(String str){
+			String[] parts = str.split(DELIMITER);
+			return new ListItem(parts[0].trim(), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]),
+								parts[3].trim(), parts[4].trim());
+		}
+
+		@Override
+		public String toString() {
+			return "{ Text: " + text + ", ID: " + id + ", EXP|MAX_EXP: " + exp +"|"+maxExp  +  "}";
+		}
+	}
 	
 }

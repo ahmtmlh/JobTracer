@@ -1,0 +1,12 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="PatternMatcher">
+    <output-path>$PROJECT_DIR$/out/artifacts/PatternMatcher</output-path>
+    <root id="archive" name="PatternMatcher.jar">
+      <element id="library" level="project" name="Maven: zemberek-nlp:zemberek-tokenization:0.17.1" />
+      <element id="library" level="project" name="Maven: zemberek-nlp:zemberek-lm:0.17.1" />
+      <element id="library" level="project" name="Maven: zemberek-nlp:zemberek-morphology:0.17.1" />
+      <element id="library" level="project" name="Maven: zemberek-nlp:zemberek-core:0.17.1" />
+      <element id="library" level="project" name="Maven: zemberek-nlp:zemberek-normalization:0.17.1" />
+    </root>
+  </artifact>
+</component>
