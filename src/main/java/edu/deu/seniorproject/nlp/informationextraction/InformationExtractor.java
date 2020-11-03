@@ -197,9 +197,10 @@ public class InformationExtractor {
 	 * @param item A sentence in ListItem form. Contains extra information like ID and experience
 	 */
 	public void extractFromString(ListItem item) {
-		String sentence = item.text;
+		String sentence = item.text.trim();
+
 		// If sentence is blank, do nothing.
-		if(sentence.trim().isEmpty()) {
+		if(sentence.isEmpty()) {
 			return;
 		}
 		// Remove stopwords.
@@ -337,14 +338,13 @@ public class InformationExtractor {
 	 * Files can't recover after deletion.
 	 */
 	public void deleteTempFiles() throws IOException{
-		java.nio.file.Files.delete(Paths.get(this.saveFileName + ".txt"));
-		java.nio.file.Files.delete(Paths.get(this.saveFileName + ".lm.txt"));
-		java.nio.file.Files.delete(Paths.get(this.fileName));
+		java.nio.file.Files.deleteIfExists(Paths.get(this.saveFileName + ".txt"));
+		java.nio.file.Files.deleteIfExists(Paths.get(this.saveFileName + ".lm.txt"));
+		java.nio.file.Files.deleteIfExists(Paths.get(this.fileName));
 	}
 
 
-	private static class ListItem{
-
+	public static class ListItem{
 		private static final String DELIMITER = "-_-";
 
 		String id;
@@ -353,7 +353,7 @@ public class InformationExtractor {
 		String text;
 		String jobInfo;
 
-		ListItem(String id, int exp, int maxExp, String jobInfo, String text){
+		public ListItem(String id, int exp, int maxExp, String jobInfo, String text){
 			this.id = id;
 			this.exp = exp;
 			this.maxExp = maxExp;
@@ -365,6 +365,26 @@ public class InformationExtractor {
 			String[] parts = str.split(DELIMITER);
 			return new ListItem(parts[0].trim(), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]),
 								parts[3].trim(), parts[4].trim());
+		}
+
+		public String getId() {
+			return id;
+		}
+
+		public int getExp() {
+			return exp;
+		}
+
+		public int getMaxExp() {
+			return maxExp;
+		}
+
+		public String getText() {
+			return text;
+		}
+
+		public String getJobInfo() {
+			return jobInfo;
 		}
 
 		@Override
