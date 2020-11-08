@@ -85,7 +85,7 @@ public class HtmlToListParser {
         }
 
         List<String> result;
-        if (hasDoubleText) {
+        if (!hasDoubleText) {
             // Parse the whole text
             result = textParse(text);
         } else {

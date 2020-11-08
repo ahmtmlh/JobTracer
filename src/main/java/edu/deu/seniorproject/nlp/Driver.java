@@ -1,6 +1,6 @@
 package edu.deu.seniorproject.nlp;
 
-import edu.deu.seniorproject.excelreader.ExcelReader;
+import edu.deu.seniorproject.datareader.DataReader;
 import edu.deu.seniorproject.nlp.informationextraction.InformationExtractor;
 import edu.deu.seniorproject.nlp.informationextraction.ProcessException;
 import edu.deu.seniorproject.parser.HtmlToListParser;
@@ -37,23 +37,23 @@ public class Driver {
         ie.saveToFile();
         System.out.println(DONE);
 
-        System.out.println("Clustering...");
-        try {
-            clustering();
-            System.out.println(DONE);
-        } catch (ProcessException | IOException e) {
-            e.printStackTrace();
-        } finally {
-            System.out.println("Deleting Temp files...");
-            try {
-                ie.deleteTempFiles();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        System.out.println(DONE);
+//        System.out.println("Clustering...");
+//        try {
+//            clustering();
+//            System.out.println(DONE);
+//        } catch (ProcessException | IOException e) {
+//            e.printStackTrace();
+//        } finally {
+//            System.out.println("Deleting Temp files...");
+//            try {
+//                ie.deleteTempFiles();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        System.out.println(DONE);
     }
-
+    /*
     private void startV1() throws InterruptedException {
         // Preprocessing part. Uncomment if data needs prepration
         // SET FILENAME IN THE PYTHON SCRIPT FILE
@@ -66,7 +66,7 @@ public class Driver {
 			System.exit(-1);
 		}
 		System.out.println(DONE);
-		*/
+
         System.out.println("Html Parsing...");
         try {
             htmlParseV1();
@@ -96,6 +96,7 @@ public class Driver {
             }
         }
     }
+    */
 
     private void htmlParseV1() throws IOException, InterruptedException, ProcessException {
         // Number of rows to be read
@@ -123,17 +124,18 @@ public class Driver {
 
 
     private List<InformationExtractor.ListItem> htmlParse() throws IOException {
-        int n = 1000;
+        int n = 10;
         File datasetFile = new File("dataset.xlsx");
-        ExcelReader excelreader = new ExcelReader(datasetFile);
-        excelreader.readNRows(n);
+        DataReader excelReader = new DataReader(datasetFile);
+        excelReader.readNRows(n);
         HtmlToListParser parser = new HtmlToListParser();
         List<InformationExtractor.ListItem> items = new ArrayList<>();
-        for (InformationExtractor.ListItem item : excelreader.exportAsList()){
+        for (InformationExtractor.ListItem item : excelReader.exportAsList()){
             List<String> words = parser.parse(item.getText());
-            words.forEach(word -> items.add(new InformationExtractor.ListItem(item.getId(), item.getExp(), item.getMaxExp(), item.getJobInfo(), word)));
+            words.forEach(word -> items.add(new InformationExtractor.ListItem(item.getId(), item.getExp(), item.getMaxExp(), item.getJobInfo(),
+                    item.getCities(), item.getEducationStatus(), word)));
         }
-
+        excelReader.close();
         return items;
     }
 
