@@ -1,9 +1,10 @@
 package edu.deu.seniorproject.nlp.morphology.lemmatization;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.*;
 
 import edu.deu.seniorproject.nlp.morphology.pattern.PatternMatcher;
 import edu.deu.seniorproject.nlp.morphology.pattern.PatternType;
@@ -18,19 +19,52 @@ public class TurkishLemmatizer implements Lemmatizer {
 	private final Map<String, PatternType> edgeCaseWords;
 	private final TurkishMorphology morphology;
 	private final List<PatternType> posTags;
+	private final Set<String> specialSet;
 	private final StringBuilder sb;
 
+	private final String edgeCaseWordsFilename;
+
 	public TurkishLemmatizer() {
+		this("");
+	}
+
+	public TurkishLemmatizer(String edgeCaseWordsFilename){
 		this.morphology = TurkishMorphology.builder().setLexicon(RootLexicon.getDefault()).useInformalAnalysis()
 				.build();
 		this.posTags = new ArrayList<>();
 		this.sb = new StringBuilder();
-		edgeCaseWords = new HashMap<>();
-		edgeCaseWords.put("ekip", PatternType.NOUN);
-		edgeCaseWords.put("dil", PatternType.NOUN);
-		edgeCaseWords.put("karar", PatternType.NOUN);
-		edgeCaseWords.put("olan", PatternType.VERB);
-		edgeCaseWords.put("olmayan", PatternType.VERB);
+		this.edgeCaseWords = new HashMap<>();
+		this.edgeCaseWordsFilename = edgeCaseWordsFilename;
+		this.specialSet = new HashSet<>();
+		initLists();
+	}
+
+	private void initLists(){
+		if (this.edgeCaseWordsFilename != null && !this.edgeCaseWordsFilename.isEmpty()){
+			initEdgeCaseWordsFromFile(this.edgeCaseWordsFilename);
+		} else {
+			edgeCaseWords.put("ekip", PatternType.NOUN);
+			edgeCaseWords.put("dil", PatternType.NOUN);
+			edgeCaseWords.put("karar", PatternType.NOUN);
+			edgeCaseWords.put("olan", PatternType.VERB);
+			edgeCaseWords.put("olmayan", PatternType.VERB);
+		}
+	}
+
+	private void initEdgeCaseWordsFromFile(String filename){
+		try(BufferedReader br = new BufferedReader(new FileReader(new File(filename)))){
+			String line;
+			while((line = br.readLine()) != null){
+				int commaIndex = line.indexOf(',');
+				if (commaIndex > 0){
+					String word = line.substring(0, commaIndex);
+					String posTag = line.substring(commaIndex+1);
+					edgeCaseWords.put(word, PatternMatcher.patternTypeFromString(posTag));
+				}
+			}
+		} catch (IOException e){
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -39,6 +73,7 @@ public class TurkishLemmatizer implements Lemmatizer {
 		List<WordAnalysis> analysis = morphology.analyzeSentence(sentence);
 		for (int i = 0; i < analysis.size(); i++) {
 			WordAnalysis current = analysis.get(i);
+
 			// If there is analysis result and result is known by the api.
 			// If not, just include the vanilla input.
 			/*
@@ -54,7 +89,7 @@ public class TurkishLemmatizer implements Lemmatizer {
 					sb.append(current.getNormalizedInput().toLowerCase()).append(" ");
 					posTags.add(edgeCaseWords.get(current.getNormalizedInput().toLowerCase()));
 					continue;
-				}	
+				}
 				sb.append(current.getAnalysisResults().get(0).getLemmas().get(0)).append(" ");
 				WordAnalysis prev = i > 0 ? analysis.get(i - 1) : WordAnalysis.EMPTY_INPUT_RESULT;
 				// WordAnalysis next = i < analysis.size()-1 ? analysis.get(i+1) : WordAnalysis.EMPTY_INPUT_RESULT;
@@ -63,18 +98,38 @@ public class TurkishLemmatizer implements Lemmatizer {
 				if (possibleFit != PatternType.UNKNOWN)
 					posTags.add(possibleFit);
 			} else {
-				if(isAllUpperCase(current.getInput())) {
+				// If analyser can't find a result for the current word, check if it has been classified as SPECIAL.
+				// SPECIAL identifiers WILL pass the pattern matching.
+				if(isSpecial(current.getInput())) {
 					posTags.add(PatternType.SPECIAL);
 				}
 				sb.append(current.getInput()).append(" ");
 			}
 		}
 	}
-	
-	
-	private boolean isAllUpperCase(String str) {
+
+	/**
+	 * 	If string is:
+	 * 		All uppercase AND
+	 * 		More than 3 characters long AND
+	 * 		Doesn't start with a digit
+	 * 	Then it can be classified as special string. This approach only classifies the first appearance
+	 * 	of the word.
+	 * 	This function uses caching on words.
+	 * @param str String to check if its special
+	 * @return	True if string is classified as special.
+	 */
+	private boolean isSpecial(String str) {
+		if (specialSet.contains(str.toUpperCase())){
+			return true;
+		}
 		String upperCase = str.toUpperCase();
-		return upperCase.equals(str);
+		boolean allUpperCase = upperCase.equals(str);
+		if (allUpperCase && upperCase.length() >= 3 && !Character.isDigit(upperCase.charAt(0))){
+			specialSet.add(upperCase);
+			return true;
+		}
+		return false;
 	}
 	
 
@@ -113,7 +168,7 @@ public class TurkishLemmatizer implements Lemmatizer {
 
 	private PatternType analyseWord(WordAnalysis current) {
 		PatternType type = PatternMatcher
-				.fromString(current.getAnalysisResults().get(0).getDictionaryItem().primaryPos.shortForm);
+				.patternTypeFromString(current.getAnalysisResults().get(0).getDictionaryItem().primaryPos.shortForm);
 		if (type == PatternType.UNKNOWN) {
 			if (checkIfContainsType(current, PatternType.ADJ)) {
 				return PatternType.ADJ;
@@ -128,7 +183,7 @@ public class TurkishLemmatizer implements Lemmatizer {
 			}
 		} else {
 			PatternType secondaryPos = PatternMatcher
-					.fromString(current.getAnalysisResults().get(0).getDictionaryItem().secondaryPos.shortForm);
+					.patternTypeFromString(current.getAnalysisResults().get(0).getDictionaryItem().secondaryPos.shortForm);
 			if (secondaryPos == PatternType.PROP) {
 				return PatternType.NOUN;
 			}
@@ -147,14 +202,15 @@ public class TurkishLemmatizer implements Lemmatizer {
 		if (checkIfContainsType(current, PatternType.TIME) && checkIfContainsType(prev, PatternType.NUM)) {
 			return PatternType.TIME;
 		}
+
 		return analyseWord(current);
 	}
 
 	private boolean checkIfContainsType(WordAnalysis word, PatternType type) {
 		for (SingleAnalysis singleAnalysis : word.getAnalysisResults()) {
 			if (singleAnalysis.getDictionaryItem() != null && (PatternMatcher
-					.fromString(singleAnalysis.getDictionaryItem().primaryPos.shortForm) == type
-					|| PatternMatcher.fromString(singleAnalysis.getDictionaryItem().secondaryPos.shortForm) == type)) {
+					.patternTypeFromString(singleAnalysis.getDictionaryItem().primaryPos.shortForm) == type
+					|| PatternMatcher.patternTypeFromString(singleAnalysis.getDictionaryItem().secondaryPos.shortForm) == type)) {
 				return true;
 			}
 		}

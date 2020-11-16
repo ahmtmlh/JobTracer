@@ -9,7 +9,6 @@ import pickle
 import sqlite3
 
 
-
 # Binary serialisation
 def dumpObjectToFile(obj, filename):
     file = open(filename, "wb")
@@ -63,10 +62,13 @@ If this function is not run in verbose mode, return value will be the same clust
 This function will not serialize vectorizer and cluster
 '''
 def finalize(name, verbose, extra_info, clusters_k_means, save_xlsx = True, matrix = None, wordsLemmatized = None, figure1_desc = None, figure1_filename = None, figure2_desc = None, figure2_filename = None):
+    # Number words (list item) in total. Lenght of this
+    # Each count in the list indicates the total number of words for a specific Job Advertisement.
     counts = extra_info[6]
     if not verbose:
         final_clusters_k_means = []
         i = 0
+        # For each Job Ad, create a cluster string. This data will be saved to one single database, rather than a relation of jobs and clusters
         for count in counts:
             c = count
             cluster_str = ''
@@ -138,27 +140,26 @@ def finalize(name, verbose, extra_info, clusters_k_means, save_xlsx = True, matr
         plt.title(figure2_desc)
         plt.savefig(figure2_filename)
 
-def tfIdfVectorizedClustering(wordsLemmatized, stopwords, extra_info, verbose = True):
+def tfIdfVectorizedClustering(wordsLemmatized, stopwords, extra_info, verbose = True, save_xlsx = True):
     # tf-idf vectorizing
-    tfidf_vectorizer = TfidfVectorizer(max_df = 0.8, min_df = 0.05, stop_words = stopwords)
+    tfidf_vectorizer = TfidfVectorizer(stop_words = stopwords)
     tfidf_matrix = tfidf_vectorizer.fit_transform(wordsLemmatized)
 
     # KMeans Clustering
     num_clusters = 40
     cluster_k_means = KMeans(n_clusters=num_clusters).fit(tfidf_matrix)
     clusters_k_means = cluster_k_means.predict(tfidf_matrix)
-    
-    if not verbose:
-        finalize('tfidf', verbose, extra_info, clusters_k_means)
-    else:
-        finalize('tfidf', verbose, extra_info, clusters_k_means, matrix=tfidf_matrix, wordsLemmatized=wordsLemmatized, figure1_desc='K-Means Clusters', figure1_filename='KMeans_clusters_tfidf.png', figure2_desc='DBSCAN Clusters', figure2_filename='DBSCAN_cluters_tfidf.png')
 
+    print("Len Clusters_k_means:", len(clusters_k_means))
+    
+    finalize('tfidf', verbose, extra_info, clusters_k_means, save_xlsx = save_xlsx, matrix=tfidf_matrix, wordsLemmatized=wordsLemmatized, figure1_desc='K-Means Clusters', figure1_filename='KMeans_clusters_tfidf.png', figure2_desc='DBSCAN Clusters', figure2_filename='DBSCAN_cluters_tfidf.png')
+        
     # Save vectorizer and clustering objects 
     dumpObjectToFile(tfidf_vectorizer, "tfidf_vectorizer_dump.pickle")
     dumpObjectToFile(cluster_k_means, "tfidf-cluster-kmeans_dump.pickle")
 
 
-def countVectorizerClustering(wordsLemmatized, stopwords, extra_info, verbose = True):
+def countVectorizerClustering(wordsLemmatized, stopwords, extra_info, verbose = True, save_xlsx = True):
     
     count_vect = CountVectorizer(stop_words=stopwords)
     matrix = count_vect.fit_transform(wordsLemmatized)
@@ -167,11 +168,8 @@ def countVectorizerClustering(wordsLemmatized, stopwords, extra_info, verbose = 
     num_clusters = 40
     cluster_k_means = KMeans(n_clusters=num_clusters).fit(matrix)
     clusters_k_means = cluster_k_means.predict(matrix)
-    
-    if not verbose:
-        finalize('cnt', verbose, extra_info, clusters_k_means)
-    else:
-        finalize('cnt', verbose, extra_info, clusters_k_means, matrix=matrix, wordsLemmatized=wordsLemmatized, figure1_desc='K-Means Clusters', figure1_filename='KMeans_clusters_cnt.png', figure2_desc='DBSCAN Clusters', figure2_filename='DBSCAN_cluters_cnt.png')
+ 
+    finalize('cnt', verbose, extra_info, clusters_k_means, matrix=matrix, save_xlsx = save_xlsx, wordsLemmatized=wordsLemmatized, figure1_desc='K-Means Clusters', figure1_filename='KMeans_clusters_cnt.png', figure2_desc='DBSCAN Clusters', figure2_filename='DBSCAN_cluters_cnt.png')
 
     # Save vectorizer and clustering objects 
     dumpObjectToFile(count_vect, "count_vect_dump.pickle")
@@ -191,9 +189,11 @@ def parseList(_list):
 # Main driver
 if __name__ == '__main__':
     # read file
-    df = pd.read_csv("ie-result.lm.txt", encoding="utf-8", header=None, sep=';')
+    df = pd.read_csv("../ie-result.lm.txt", encoding="utf-8", header=None, sep=';')
     wordsLemmatized = df[df.columns[-1]].values.tolist()
     wordsLemmatized, counts = parseList(wordsLemmatized)
+    print("Counts:", sum(counts))
+    print("Len: ", len(wordsLemmatized))
     ids = df[df.columns[0]].values.tolist()
     exp = df[df.columns[1]].values.tolist()
     maxExp = df[df.columns[2]].values.tolist()
@@ -212,5 +212,5 @@ if __name__ == '__main__':
     #List of stop-words. These won't be calculated during vectorizing, but they were needed by IE service before clustering
     stopwords = ['tercihen', 'universite', 'universitelerin', 'üniversite', 'üniversitelerin']
 
-    tfIdfVectorizedClustering(wordsLemmatized, stopwords, extra_info)
-    countVectorizerClustering(wordsLemmatized, stopwords, extra_info, verbose = False)
+    tfIdfVectorizedClustering(wordsLemmatized, stopwords, extra_info, verbose=False, save_xlsx = False)
+    countVectorizerClustering(wordsLemmatized, stopwords, extra_info, verbose = False, save_xlsx = False)

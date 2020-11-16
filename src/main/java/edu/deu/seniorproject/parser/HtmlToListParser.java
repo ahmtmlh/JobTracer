@@ -95,7 +95,6 @@ public class HtmlToListParser {
         return result;
     }
 
-
     private List<String> textParse(String text) {
 
         List<String> items = new ArrayList<>();

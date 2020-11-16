@@ -21,14 +21,16 @@ public class DataReader {
     private static final Map<String, Integer> edStatusValues = new HashMap<>();
     static{
         edStatusValues.put("ilköğretim mezunu", 1);
-        edStatusValues.put("lise mezunu", 2);
-        edStatusValues.put("meslek yüksekokulu öğrencisi", 3);
-        edStatusValues.put("meslek yüksekokulu mezunu", 4);
-        edStatusValues.put("üniversite öğrencisi", 5);
-        edStatusValues.put("üniversite mezunu", 6);
-        edStatusValues.put("master öğrencisi", 7);
-        edStatusValues.put("master mezunu", 8);
-        edStatusValues.put("doktora mezunu", 9);
+        edStatusValues.put("lise öğrencisi", 2);
+        edStatusValues.put("lise mezunu", 3);
+        edStatusValues.put("meslek yüksekokulu öğrencisi", 4);
+        edStatusValues.put("meslek yüksekokulu mezunu", 5);
+        edStatusValues.put("üniversite öğrencisi", 6);
+        edStatusValues.put("üniversite mezunu", 7);
+        edStatusValues.put("master öğrencisi", 8);
+        edStatusValues.put("master mezunu", 9);
+        edStatusValues.put("doktora öğrencisi", 10);
+        edStatusValues.put("doktora mezunu", 11);
 
     }
 
@@ -50,7 +52,7 @@ public class DataReader {
         }
 
         if (n <= 0 || n >= sheet.getPhysicalNumberOfRows()){
-            n = sheet.getPhysicalNumberOfRows();
+            n = sheet.getPhysicalNumberOfRows()-1;
         }
         Iterator<Row> rowIterator = sheet.rowIterator();
         // First row is header
@@ -69,6 +71,7 @@ public class DataReader {
             InformationExtractor.ListItem item = new InformationExtractor.ListItem(id, exp, maxExp, jobInfo, cities, educationStatus, text);
             list.add(item);
         }
+        System.out.println("List Size: " + list.size());
     }
 
     public void close() throws IOException {
@@ -80,7 +83,8 @@ public class DataReader {
         if (edStatus.indexOf(',') == -1){
             return edStatusValues.get(edStatus.toLowerCase());
         }
-        return edStatusValues.get(edStatus.substring(0, edStatus.indexOf(',')).toLowerCase());
+        String minEducationStatus = edStatus.substring(0, edStatus.indexOf(',')).toLowerCase();
+        return edStatusValues.get(minEducationStatus);
     }
 
     /**

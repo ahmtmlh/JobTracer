@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Driver {
@@ -20,11 +21,25 @@ public class Driver {
         startV2();
     }
 
+    private void testV1(){
+        String str = "<ul><li><strong>Tercihen çok iyi derecede İngilizce&nbsp;konuşabilen ve gerekli yazışmaları yapabilen (ikinci dil tercih sebebidir)</strong></li><li><strong>Dış ticaret konusunda deneyimli veya yetiştirilmek üzere</strong> </li><li><strong>İlgili yurt-dışı&nbsp;firmalarıyla gerekli yazışmaları ve görüşmeleri yapabilen</strong></li><li><strong><span>Mevcut müşteri ilişkilerini yürütebilen</span></strong> </li><li><strong><span>Tercihen Üniversite mezunu</span></strong> </li><li><strong><span>Konya'da ikamet eden</span></strong> </li><li><strong><span>İletişim yeteneği kuvvetli</span></strong> </li><li><strong><span>Bilgisayar kullanabilen, Microsoft Office programlarına hakim</span></strong></li><li><strong><span>Disiplinli, sonuç odaklı, analitik düşünebilen</span></strong> </li><li><strong><span>Seyahat engeli olmayan</span></strong> </li><li><strong><span>Bay / Bayan personel</span></strong> </li></ul><br><br><h3>İŞ TANIMI</h3><p><strong>Ekmek ve unlu mamul&nbsp;üretimi için gerekli olan&nbsp;makine ve ekipmanların&nbsp;önde gelen üreticilerinden biri olan&nbsp;ve 85'den fazla ülkeye ihracat yapan, firmamızın ihracat departmanında&nbsp;görevlendirilmek üzere çalışma arkadaşları alınacaktır.</strong></p><p><strong><span><span>Firmamızda;</span></span></strong></p><ul><li><strong><span><span>Hedef olarak belirlenen ülkelerde, ihracatın artırılması ve satış istikrarının sağlanması için gerekli çalışmaların yapılması</span></span></strong></li><li><strong>Mevcut yurt-dışı&nbsp;satış işlemlerinin takip edilmesi ve düzenli olarak yönetime rapor edilmesi</strong></li><li><strong><span><span>Şirketimizin belirlediği hedefler doğrultusunda yurt dışı pazarlarının araştırılması ve yeni&nbsp; müşterilerin bulunması, gerektiğinde yurt dışı fuarlar ve müşteri ziyaretlerinde bulunması</span></span></strong></li><li><strong><span><span>Dış ticaret stratejilerimizin uygulanması ve geliştirilmesi</span></span></strong></li></ul>";
+        List<InformationExtractor.ListItem> list;
+        try{
+            list = htmlParse(1000);
+        } catch (IOException e){
+            e.printStackTrace();
+            return;
+        }
+        InformationExtractor ie = new InformationExtractor(3);
+        ie.extractFromList(list);
+
+    }
+
     private void startV2() throws InterruptedException {
         System.out.println("Html parsing...");
         List<InformationExtractor.ListItem> list;
         try{
-            list = htmlParse();
+            list = htmlParse(-1);
         } catch (IOException e){
             e.printStackTrace();
             return;
@@ -53,6 +68,7 @@ public class Driver {
 //        }
 //        System.out.println(DONE);
     }
+
     /*
     private void startV1() throws InterruptedException {
         // Preprocessing part. Uncomment if data needs prepration
@@ -123,8 +139,12 @@ public class Driver {
     }
 
 
-    private List<InformationExtractor.ListItem> htmlParse() throws IOException {
-        int n = 10;
+    private List<String> htmlParseFromString(String str){
+        HtmlToListParser parser = new HtmlToListParser();
+        return parser.parse(str);
+    }
+
+    private List<InformationExtractor.ListItem> htmlParse(int n) throws IOException {
         File datasetFile = new File("dataset.xlsx");
         DataReader excelReader = new DataReader(datasetFile);
         excelReader.readNRows(n);

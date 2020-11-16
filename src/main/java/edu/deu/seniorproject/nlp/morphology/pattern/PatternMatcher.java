@@ -43,7 +43,7 @@ public interface PatternMatcher {
 	public boolean completePatternMatch(List<PatternType> posTags, Pattern pattern);
 	
 	
-	public static PatternType fromString(String str) {
+	public static PatternType patternTypeFromString(String str) {
 		try {
 			str = str.toUpperCase().replace('İ', 'I').replace('Ç', 'C')
 					.replace('Ş', 'S').replace('Ğ', 'G').replace('Ü', 'U');

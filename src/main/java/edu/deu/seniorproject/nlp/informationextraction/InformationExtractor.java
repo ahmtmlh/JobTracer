@@ -42,10 +42,9 @@ public class InformationExtractor {
 	private final int maxTokenMatch;
 
 	// RESULT LISTS / SETS
-	private Set<String> result;
-	private Set<String> lemmatizedResult;
-	private List<ListItem> extraInfoResult;
 
+	private Map<ListItem, List<String>> lemmatizedResult;
+	private Map<ListItem, List<String>> result;
 	public InformationExtractor(int minMatchCount) {
 		init();
 		this.minMatchCount = minMatchCount;
@@ -60,9 +59,8 @@ public class InformationExtractor {
 		tokenizer = new NGramTokenizer(6);
 		pm = new LinguisticPatternMatcher();
 		// HashSet is used for retaining the insertion order, and eliminating duplications.
-		result = new LinkedHashSet<>();
-		lemmatizedResult = new LinkedHashSet<>();
-		extraInfoResult = new ArrayList<>();
+		result = new HashMap<>();
+		lemmatizedResult = new HashMap<>();
 	}
 
 	private void initLists() {
@@ -74,8 +72,7 @@ public class InformationExtractor {
 		singleMatchList.add(new Pattern(NUM, TIME, VERB));
 		singleMatchList.add(new Pattern(NUM, TIME, NOUN));
 		// Özel isim durumları.
-		singleMatchList.add(new Pattern(SPECIAL, VERB));
-		singleMatchList.add(new Pattern(SPECIAL, NOUN));
+		singleMatchList.add(new Pattern(SPECIAL));
 		// 2 dil bilen?
 		singleMatchList.add(new Pattern(NUM, NOUN, VERB));
 		singleMatchList.add(new Pattern(ADJ, NOUN, NOUN));
@@ -87,6 +84,7 @@ public class InformationExtractor {
 		multipleMatchList.add(new Pattern(ADJ, NOUN, VERB));
 		multipleMatchList.add(new Pattern(NOUN, VERB, ADJ));
 		multipleMatchList.add(new Pattern(ADJ, VERB, NOUN));
+		multipleMatchList.add(new Pattern(ADV, VERB, NOUN));
 		//multipleMatchList.add(new Pattern(ADJ, NOUN, VERB));
 		//multipleMatchList.add(new Pattern(NOUN, NOUN, NOUN));
 		multipleMatchList.add(new Pattern(ADJ, VERB, NOUN, NOUN));
@@ -223,21 +221,32 @@ public class InformationExtractor {
 			}
 		}
 	}
-
 	/*
 	 * Adding successful strings to result lists.
 	 */
 	private void addToLists(String str, ListItem item) {
+		boolean newItem = false;
 		str = removePunctuation(str);
 		lemmatizer.flush();
 		lemmatizer.lemmatizeSentence(str, true);
-		if(!lemmatizedResult.contains(lemmatizer.getLemmatizedSentence().trim()) && !result.contains(str)) {
-			lemmatizedResult.add(lemmatizer.getLemmatizedSentence().trim());
-			result.add(str);
-			// Invalid items are only String items. Do not save other information from invalid items.
-			if (item != null && item.isValid()){
-				extraInfoResult.add(item);
-			}
+
+		List<String> lemmatizedList;
+		List<String> regularList;
+		if(lemmatizedResult.containsKey(item)){
+			lemmatizedList = lemmatizedResult.get(item);
+			regularList = result.get(item);
+		} else {
+			newItem = true;
+			lemmatizedList = new ArrayList<>();
+			regularList = new ArrayList<>();
+		}
+
+		lemmatizedList.add(lemmatizer.getLemmatizedSentence().trim());
+		regularList.add(str);
+
+		if (newItem){
+			lemmatizedResult.put(item, lemmatizedList);
+			result.put(item, regularList);
 		}
 	}
 	
@@ -273,6 +282,31 @@ public class InformationExtractor {
 	 * @param items List of sentences, with extra information.
 	 */
 	public void extractFromList(List<ListItem> items) {
+		// Threading?
+//		Thread[] threadArr = new Thread[4];
+//		for (int i = 0; i < 4; i++) {
+//			int finalI = i;
+//			threadArr[i] = new Thread(() -> {
+//				int start = (items.size() / 4) * finalI;
+//				int end = start + (items.size()/4);
+//				while (start < end) {
+//					extractFromListItem(items.get(start));
+//					start++;
+//				}
+//			});
+//		}
+//		for(Thread thread : threadArr){
+//			thread.start();
+//		}
+//
+//		for(Thread thread : threadArr){
+//			try {
+//				thread.join();
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
+//		}
+
 		for (ListItem item : items) {
 			extractFromListItem(item);
 			//System.out.printf("Line: %d/%d%n", i, n);
@@ -292,6 +326,24 @@ public class InformationExtractor {
 		}
 	}
 
+	private String getFormattedString(ListItem item, List<String> list){
+		String ret = item.id + ";" + item.exp + ";" + item.maxExp + ";" + item.jobInfo + ";" +
+				item.cities + ";" + item.getEducationStatus() + ";";
+
+		StringBuilder sb = new StringBuilder();
+		for (String str : list){
+			sb.append(str).append('|');
+		}
+
+		if (sb.length() > 0){
+			//Get rid of the extra '|'
+			sb.setLength(sb.length()-1);
+			ret = ret + sb.toString();
+		}
+
+		return ret;
+	}
+
 
 	/**
 	 * Save the extracted information strings (both original and 
@@ -301,39 +353,20 @@ public class InformationExtractor {
 	public void saveToFile(String filename) {
 		this.saveFileName = filename;
 		try(BufferedWriter bw = new BufferedWriter(new FileWriter(new File(filename+".txt")))){
-			for (String res : result) {
+			for (Map.Entry<ListItem, List<String>> entry : result.entrySet()) {
+				String res = getFormattedString(entry.getKey(), entry.getValue());
 				bw.write(res);
 				bw.newLine();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		List<String> lemmatizedResultList = new ArrayList<>(this.lemmatizedResult);
-		// Lemmatized result will also contain exp and id information
 		try(BufferedWriter bw = new BufferedWriter(new FileWriter(new File(filename+".lm.txt")))){
-			int i = 0;
-			/*
-				Structure of the lemmatized result is as follows:
-			 	id;exp;maxExp;jobInfo;[cities separated by '|'];educationStatus (determined by the lowest level);[lemmatized results separated by '|']
-			 */
-			while(i < extraInfoResult.size()){
-				ListItem current = extraInfoResult.get(i);
-				String toWrite = current.id + ";" + current.exp + ";" + current.maxExp + ";" + current.jobInfo + ";" +
-						current.cities + ";" + current.getEducationStatus() + ";";
 
-				StringBuilder sb = new StringBuilder();
-				while(i < extraInfoResult.size() && current.id.equals(extraInfoResult.get(i).id)){
-					sb.append(lemmatizedResultList.get(i)).append('|');
-					i++;
-				}
-
-				if (sb.length() > 0){
-					//Get rid of the extra '|'
-					sb.setLength(sb.length()-1);
-					toWrite = toWrite + sb.toString();
-					bw.write(toWrite);
-					bw.newLine();
-				}
+			for (Map.Entry<ListItem, List<String>> entry : lemmatizedResult.entrySet()){
+				String res = getFormattedString(entry.getKey(), entry.getValue());
+				bw.write(res);
+				bw.newLine();
 			}
 
 		} catch (IOException e) {
@@ -346,7 +379,9 @@ public class InformationExtractor {
 	}
 
 	public List<String> getLemmatizedResults(){
-		return new ArrayList<>(this.lemmatizedResult);
+		List<String> ret = new ArrayList<>();
+		lemmatizedResult.values().forEach(ret::addAll);
+		return ret;
 	}
 
 	/**
@@ -359,7 +394,6 @@ public class InformationExtractor {
 	}
 
 	public void clear(){
-		this.extraInfoResult.clear();
 		this.lemmatizedResult.clear();
 		this.result.clear();
 		this.lemmatizer.flush();
@@ -396,7 +430,7 @@ public class InformationExtractor {
 		}
 
 		private boolean checkIfValid(){
-			return !(id == null || id.isEmpty());
+			return id != null && !id.isEmpty();
 		}
 
 		public boolean isValid(){
@@ -434,6 +468,31 @@ public class InformationExtractor {
 		@Override
 		public String toString() {
 			return "{ Text: " + text + ", ID: " + id + ", EXP|MAX_EXP: " + exp +"|"+maxExp  +  "}";
+		}
+
+		@Override
+		public int hashCode() {
+			if (this.id != null){
+				return this.id.hashCode();
+			} else {
+				return this.text.hashCode();
+			}
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj){
+				return true;
+			}
+			if (obj instanceof ListItem){
+				if (this.id != null){
+					return this.id.equals( ((ListItem)obj).id );
+				} else {
+					return this.text.equals( ((ListItem)obj).text );
+				}
+			}
+
+			return false;
 		}
 	}
 	
