@@ -1,11 +1,5 @@
 package edu.deu.seniorproject.nlp.morphology.lemmatization;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.*;
-
 import edu.deu.seniorproject.nlp.morphology.pattern.PatternMatcher;
 import edu.deu.seniorproject.nlp.morphology.pattern.PatternType;
 import zemberek.core.turkish.PrimaryPos;
@@ -13,6 +7,12 @@ import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.SingleAnalysis;
 import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.lexicon.RootLexicon;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.*;
 
 public class TurkishLemmatizer implements Lemmatizer {
 

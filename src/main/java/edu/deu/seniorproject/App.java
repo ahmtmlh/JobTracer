@@ -6,9 +6,14 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.util.Locale;
+
 public class App {
 
 	public static void main(String[] args) throws InterruptedException {
+		// Set system (current VM) wide locale to Turkish Locale
+		Locale.setDefault(Locale.forLanguageTag("TR"));
+
 		driverMain();
 		//htmlParseTest();
 	}

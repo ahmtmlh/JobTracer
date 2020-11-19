@@ -1,8 +1,8 @@
 package edu.deu.seniorproject.nlp.morphology.lemmatization;
 
-import java.util.List;
-
 import edu.deu.seniorproject.nlp.morphology.pattern.PatternType;
+
+import java.util.List;
 
 public interface Lemmatizer {
 

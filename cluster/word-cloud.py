@@ -1,7 +1,6 @@
-from wordcloud import WordCloud
-from PIL import Image
-import matplotlib.pyplot as plt 
 import numpy as np
+from PIL import Image
+from wordcloud import WordCloud
 
 # read file
 f = open("C:\\Users\\Melih\\Senior Project\\test-parse.txt", "r", encoding="utf-8")

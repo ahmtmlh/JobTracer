@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Driver {
@@ -151,9 +150,11 @@ public class Driver {
         HtmlToListParser parser = new HtmlToListParser();
         List<InformationExtractor.ListItem> items = new ArrayList<>();
         for (InformationExtractor.ListItem item : excelReader.exportAsList()){
-            List<String> words = parser.parse(item.getText());
-            words.forEach(word -> items.add(new InformationExtractor.ListItem(item.getId(), item.getExp(), item.getMaxExp(), item.getJobInfo(),
-                    item.getCities(), item.getEducationStatus(), word)));
+            List<String> words = parser.parse(item.getTexts().get(0));
+            InformationExtractor.ListItem newItem = new InformationExtractor.ListItem(item.getId(), item.getExp(), item.getMaxExp(), item.getJobInfo(),
+                    item.getCities(), item.getEducationStatus());
+            words.forEach(newItem::addText);
+            items.add(newItem);
         }
         excelReader.close();
         return items;

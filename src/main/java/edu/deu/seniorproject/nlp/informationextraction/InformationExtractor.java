@@ -1,12 +1,5 @@
 package edu.deu.seniorproject.nlp.informationextraction;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.*;
-
 import edu.deu.seniorproject.nlp.morphology.StopWordRemover;
 import edu.deu.seniorproject.nlp.morphology.lemmatization.Lemmatizer;
 import edu.deu.seniorproject.nlp.morphology.lemmatization.TurkishLemmatizer;
@@ -17,11 +10,18 @@ import edu.deu.seniorproject.nlp.morphology.pattern.PatternType;
 import edu.deu.seniorproject.nlp.morphology.token.NGramTokenizer;
 import edu.deu.seniorproject.nlp.morphology.token.Tokenizer;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.*;
+
 import static edu.deu.seniorproject.nlp.morphology.pattern.PatternType.*;
 
 public class InformationExtractor {
 
-	public static final String VERSION = "V1.1";
+	public static final String VERSION = "V1.3";
 
 	private String saveFileName;
 	
@@ -194,37 +194,39 @@ public class InformationExtractor {
 	 * @param item A sentence in ListItem form. Contains extra information like ID and experience
 	 */
 	public void extractFromListItem(ListItem item) {
-		String sentence = item.text.trim();
+		for(String sentence : item.getTexts()){
+			sentence = sentence.trim();
 
-		// If sentence is blank, do nothing.
-		if(sentence.isEmpty()) {
-			return;
-		}
-		// Remove stopwords.
-		if (stopWordRemover.isErrorFree()) {
-			sentence = stopWordRemover.removeStopWords(sentence);
-		}
-		String[] commaSeparated = sentence.split(",");
-		if (checkSeparatedStrings(commaSeparated)) {
-			// All comma separated sentences are matched by pattern rules. Include them
-			// as different sentences.
-			for (String commaSeparatedSentence : commaSeparated) {
-				addToLists(commaSeparatedSentence, item);
+			// If sentence is blank, do nothing.
+			if(sentence.isEmpty()) {
+				return;
 			}
-		} else {
-			// At least ONE of the comma separated sentence doesn't match pattern matching rules.
-			// Check for the original sentence, and add it to list if it matches rules.
-			tokenizer.clearTokens();
-			tokenizer.tokenize(sentence);
-			if (checkTokensMatching(tokenizer.getTokens())) {
-				addToLists(sentence, item);
+			// Remove stopwords.
+			if (stopWordRemover.isErrorFree()) {
+				sentence = stopWordRemover.removeStopWords(sentence);
+			}
+			String[] commaSeparated = sentence.split(",");
+			if (checkSeparatedStrings(commaSeparated)) {
+				// All comma separated sentences are matched by pattern rules. Include them
+				// as different sentences.
+				for (String commaSeparatedSentence : commaSeparated) {
+					addToResult(commaSeparatedSentence, item);
+				}
+			} else {
+				// At least ONE of the comma separated sentence doesn't match pattern matching rules.
+				// Check for the original sentence, and add it to list if it matches rules.
+				tokenizer.clearTokens();
+				tokenizer.tokenize(sentence);
+				if (checkTokensMatching(tokenizer.getTokens())) {
+					addToResult(sentence, item);
+				}
 			}
 		}
 	}
 	/*
 	 * Adding successful strings to result lists.
 	 */
-	private void addToLists(String str, ListItem item) {
+	private void addToResult(String str, ListItem item) {
 		boolean newItem = false;
 		str = removePunctuation(str);
 		lemmatizer.flush();
@@ -406,18 +408,18 @@ public class InformationExtractor {
 		String id;
 		int exp;
 		int maxExp;
-		String text;
+		List<String> texts;
 		String jobInfo;
 		String cities;
 		int educationStatus;
 
 		private final boolean valid;
 
-		public ListItem(String id, int exp, int maxExp, String jobInfo, String cities, int educationStatus, String text){
+		public ListItem(String id, int exp, int maxExp, String jobInfo, String cities, int educationStatus){
 			this.id = id;
 			this.exp = exp;
 			this.maxExp = maxExp;
-			this.text = text;
+			this.texts = new ArrayList<>();
 			this.jobInfo = jobInfo;
 			this.cities = cities;
 			this.educationStatus = educationStatus;
@@ -425,7 +427,8 @@ public class InformationExtractor {
 		}
 
 		public ListItem(String text){
-			this.text = text;
+			this.texts = new ArrayList<>();
+			this.texts.add(text);
 			valid = false;
 		}
 
@@ -449,8 +452,8 @@ public class InformationExtractor {
 			return maxExp;
 		}
 
-		public String getText() {
-			return text;
+		public List<String> getTexts() {
+			return texts;
 		}
 
 		public String getJobInfo() {
@@ -465,9 +468,13 @@ public class InformationExtractor {
 			return educationStatus;
 		}
 
+		public void addText(String text){
+			this.texts.add(text);
+		}
+
 		@Override
 		public String toString() {
-			return "{ Text: " + text + ", ID: " + id + ", EXP|MAX_EXP: " + exp +"|"+maxExp  +  "}";
+			return "{ Text: " + Arrays.toString(texts.toArray()) + ", ID: " + id + ", EXP|MAX_EXP: " + exp +"|"+maxExp  +  "}";
 		}
 
 		@Override
@@ -475,7 +482,7 @@ public class InformationExtractor {
 			if (this.id != null){
 				return this.id.hashCode();
 			} else {
-				return this.text.hashCode();
+				return this.texts.hashCode();
 			}
 		}
 
@@ -488,7 +495,7 @@ public class InformationExtractor {
 				if (this.id != null){
 					return this.id.equals( ((ListItem)obj).id );
 				} else {
-					return this.text.equals( ((ListItem)obj).text );
+					return this.texts.equals( ((ListItem)obj).texts );
 				}
 			}
 

@@ -59,16 +59,17 @@ public class DataReader {
         rowIterator.next();
         for(int i = 0; i < n; i++){
             Row nextRow = rowIterator.next();
-            String text = nextRow.getCell(7).getStringCellValue();
-            String id = String.valueOf((int)nextRow.getCell(2).getNumericCellValue());
+            String text = nextRow.getCell(7).getStringCellValue().trim();
+            String id = String.valueOf((int)nextRow.getCell(2).getNumericCellValue()).trim();
             int exp = (int) nextRow.getCell(3).getNumericCellValue();
             int maxExp = (int) nextRow.getCell(4).getNumericCellValue();
-            String jobInfo = String.valueOf(nextRow.getCell(6).getStringCellValue());
-            String cities = nextRow.getCell(5).getStringCellValue().replace(',', '|');
+            String jobInfo = String.valueOf(nextRow.getCell(6).getStringCellValue()).trim();
+            String cities = nextRow.getCell(5).getStringCellValue().replace(',', '|').trim();
             int educationStatus = getEdStatusNumericalValue(nextRow.getCell(8).getStringCellValue());
 
 
-            InformationExtractor.ListItem item = new InformationExtractor.ListItem(id, exp, maxExp, jobInfo, cities, educationStatus, text);
+            InformationExtractor.ListItem item = new InformationExtractor.ListItem(id, exp, maxExp, jobInfo, cities, educationStatus);
+            item.addText(text);
             list.add(item);
         }
         System.out.println("List Size: " + list.size());
