@@ -19,8 +19,6 @@ public class ResumeMatchingRestController {
 	@Autowired
 	private ResumeMatchingService resumeMatchingService;
 	
-	
-	
 	//Resume Matching
 	
 	@RequestMapping(method = RequestMethod.POST,value = "/cities")
@@ -50,9 +48,7 @@ public class ResumeMatchingRestController {
 	    
 		return ResponseEntity.ok(types);
 	}
-	
-	
-	
+
 	
 	@RequestMapping(method = RequestMethod.POST,value = "/resumeInfo")
 	public ResponseEntity<List<City>> getNew(@RequestBody City city){

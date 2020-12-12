@@ -1,16 +1,11 @@
 package edu.deu.resumeie;
 
-import edu.deu.resumeie.service.model.CV;
-import edu.deu.resumeie.service.model.Job;
-import edu.deu.resumeie.service.service.ClusterMatchingService;
 import edu.deu.resumeie.shared.SharedObjects;
 import edu.deu.resumeie.training.nlp.TrainingDriver;
 import org.apache.commons.cli.*;
+import org.springframework.boot.SpringApplication;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 
 public class App {
 
@@ -81,7 +76,7 @@ public class App {
                 if (cmd.hasOption("cv")) {
                     SharedObjects.serviceParams.vectorizer = cmd.getOptionValue("cv");
                 }
-                serviceMain();
+                serviceMain(args);
             } else {
                 trainingMain();
             }
@@ -99,25 +94,27 @@ public class App {
         driver.start();
     }
 
-    private static void serviceMain() {
+    private static void serviceMain(String[] args) {
 
-        String name = "Ahmet";
-        String surname = "Veli";
-        String profession = "Kasiyer";
-        String educationStatus = "üniversite mezunu";
-        String cities = "İstanbul";
-        int experience = 2;
-        List<String> qualificationList = Arrays.asList("Çalıştığım süre boyunca kasiyerlik yaptım", "Servis işlerine baktım", "Ara sıra garsonluk yaptım");
+//        String name = "Ahmet";
+//        String surname = "Veli";
+//        String profession = "Kasiyer";
+//        String educationStatus = "üniversite mezunu";
+//        String cities = "İstanbul";
+//        int experience = 2;
+//        List<String> qualificationList = Arrays.asList("Çalıştığım süre boyunca kasiyerlik yaptım", "Servis işlerine baktım", "Ara sıra garsonluk yaptım");
+//
+//        CV cv = new CV(name, surname, profession, educationStatus, cities, experience, qualificationList);
+//
+//        ClusterMatchingService service = new ClusterMatchingService();
+//        Optional<List<Job>> results = service.matchingProcess(cv);
+//        if(results.isPresent()){
+//            System.out.printf("---------Found %d Jobs---------%n", results.get().size());
+//            results.get().forEach(System.out::println);
+//        } else {
+//            System.err.println("Something Went Wrong");
+//        }
 
-        CV cv = new CV(name, surname, profession, educationStatus, cities, experience, qualificationList);
-
-        ClusterMatchingService service = new ClusterMatchingService();
-        Optional<List<Job>> results = service.matchingProcess(cv);
-        if(results.isPresent()){
-            System.out.printf("---------Found %d Jobs---------%n", results.get().size());
-            results.get().forEach(System.out::println);
-        } else {
-            System.err.println("Something Went Wrong");
-        }
+        SpringApplication.run(WebApp.class, args);
     }
 }
