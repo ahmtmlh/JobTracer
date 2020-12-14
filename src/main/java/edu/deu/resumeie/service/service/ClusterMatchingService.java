@@ -31,16 +31,15 @@ public class ClusterMatchingService {
      *
      * CV is received from front-end service.
      * @param cv A CV object that represents person's information as well as abilities.
+     * @param priority Matching priority for the matching process
      */
-    public Optional<List<Job>> matchingProcess(CV cv){
+    public Optional<List<Job>> matchingProcess(CV cv, Matcher.MatchingPriority priority){
 
         AtomicReference<String> clustersReference = new AtomicReference<>();
         AtomicReference<List<Job>> preMatchedList = new AtomicReference<>();
 
-        Thread preMatcherThread = new Thread(() -> {
-            preMatchedList.set(clusterDataRepository.getPreMatchedJobAds(
-                    cv.getExperience(), cv.getEducationStatus(), cv.getProfession(), cv.getDesiredCities(), SharedObjects.serviceParams.getTextFields));
-        });
+        Thread preMatcherThread = new Thread(() -> preMatchedList.set(clusterDataRepository.getPreMatchedJobAds(
+                cv.getExperience(), cv.getEducationStatus(), cv.getProfession(), cv.getDesiredCities(), SharedObjects.serviceParams.getTextFields)));
 
         Thread clusterServiceThread = new Thread(() -> {
             // Information Extraction
@@ -90,7 +89,7 @@ public class ClusterMatchingService {
             }
 
             // Begin matching
-            finalList = Matcher.match(preMatchList, clusterString, Matcher.MatchingPriority.HALF);
+            finalList = Matcher.match(preMatchList, clusterString, priority);
 
         } catch (InterruptedException | IllegalArgumentException e){
             e.printStackTrace();

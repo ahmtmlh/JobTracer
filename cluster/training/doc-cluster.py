@@ -8,7 +8,6 @@ from sklearn.cluster import KMeans
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-
 # Binary serialisation
 def dumpObjectToFile(obj, filename):
     file = open(filename, "wb")
@@ -16,6 +15,8 @@ def dumpObjectToFile(obj, filename):
     file.close()
 
 '''
+UNUSED
+
 This function receives K-Means Cluster results (fit_transform) as well as other jobAd information (extra_info)
 This will save the final result or generate debugging information, decided by the verbose parameter
 If verbose parameter is given as 'True', it will require additional parameters such as:
@@ -140,6 +141,46 @@ def finalize(name, verbose, extra_info, clusters_k_means, save_xlsx = True, matr
         plt.title(figure2_desc)
         plt.savefig(figure2_filename)
 
+'''
+UNUSED
+'''
+def tfIdfVectorizedClustering(wordsLemmatized, stopwords, extra_info, verbose = True, save_xlsx = True):
+    # tf-idf vectorizing
+    tfidf_vectorizer = TfidfVectorizer(stop_words = stopwords)
+    tfidf_matrix = tfidf_vectorizer.fit_transform(wordsLemmatized)
+
+    # KMeans Clustering
+    num_clusters = 40
+    cluster_k_means = KMeans(n_clusters=num_clusters).fit(tfidf_matrix)
+    clusters_k_means = cluster_k_means.predict(tfidf_matrix)
+
+    print("Len Clusters_k_means:", len(clusters_k_means))
+    
+    finalize('tfidf', verbose, extra_info, clusters_k_means, save_xlsx = save_xlsx, matrix=tfidf_matrix, wordsLemmatized=wordsLemmatized, figure1_desc='K-Means Clusters', figure1_filename='KMeans_clusters_tfidf.png', figure2_desc='DBSCAN Clusters', figure2_filename='DBSCAN_cluters_tfidf.png')
+        
+    # Save vectorizer and clustering objects 
+    dumpObjectToFile(tfidf_vectorizer, "tfidf_vectorizer_dump.pickle")
+    dumpObjectToFile(cluster_k_means, "tfidf-cluster-kmeans_dump.pickle")
+
+'''
+UNUSED
+'''
+def countVectorizerClustering(wordsLemmatized, stopwords, extra_info, verbose = True, save_xlsx = True):
+    
+    count_vect = CountVectorizer(stop_words=stopwords)
+    matrix = count_vect.fit_transform(wordsLemmatized)
+
+    # KMeans Clustering
+    num_clusters = 40
+    cluster_k_means = KMeans(n_clusters=num_clusters).fit(matrix)
+    clusters_k_means = cluster_k_means.predict(matrix)
+ 
+    finalize('cnt', verbose, extra_info, clusters_k_means, matrix=matrix, save_xlsx = save_xlsx, wordsLemmatized=wordsLemmatized, figure1_desc='K-Means Clusters', figure1_filename='KMeans_clusters_cnt.png', figure2_desc='DBSCAN Clusters', figure2_filename='DBSCAN_cluters_cnt.png')
+
+    # Save vectorizer and clustering objects 
+    dumpObjectToFile(count_vect, "count_vect_dump.pickle")
+    dumpObjectToFile(cluster_k_means, "count-cluster-kmeans_dump.pickle")
+
 
 """
     This function receives clusters in a list (each cluster as an item in list), and counts of each cluster in an JobAd
@@ -164,76 +205,190 @@ def clusters_as_string(clusters, counts):
         final_clusters.append(cluster_str[1:])
     return final_clusters
 
+def create_job_cities_table(conn, cities):
+    c = conn.cursor()
+    c.executescript(
+    '''
+        DROP TABLE IF EXISTS CITIES;
+        CREATE TABLE CITIES(
+            id INTEGER PRIMARY KEY,
+            name TEXT NOT NULL
+        );
+        CREATE INDEX city_name_index ON CITIES(name);
+        DROP TABLE IF EXISTS JOB_CITIES;
+        CREATE TABLE JOB_CITIES(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            job_id INTEGER NOT NULL,
+            city_id INTEGER NOT NULL,
+            FOREIGN KEY(job_id) REFERENCES JOB_DATA(id),
+            FOREIGN KEY(city_id) REFERENCES CITIES(id)
+        );
+        CREATE INDEX jc_job_id_index ON JOB_CITIES(job_id);
+        CREATE INDEX jc_city_id_index ON JOB_CITIES(city_id);
+    ''')
+    
+    cities.to_sql('CITIES', conn, if_exists='append', index=False)
+
+def populate_job_cities_table(conn, cities, df):
+    count = 0
+    c = conn.cursor()
+    for index, row in df.iterrows():
+        temp = str(row['cities']).split(',')
+        job_id = row['job_id']
+        for city in temp:
+            city_id = cities[cities['name']==city].index.values[0]
+            query = 'INSERT INTO JOB_CITIES(job_id, city_id) VALUES({}, {})'.format(job_id, city_id)
+            c.execute(query)
+            count = count + 1
+    conn.commit()
+    print('Total rows inserted: ', count)
+
+def create_university_tables(conn):
+    c = conn.cursor()
+    c.executescript(
+    '''
+        DROP TABLE IF EXISTS UNIVERSITIES;
+        CREATE TABLE UNIVERSITIES(
+            id INTEGER PRIMARY KEY,
+            name TEXT NOT NULL
+        );
+        DROP TABLE IF EXISTS FACULTIES;
+        CREATE TABLE FACULTIES(
+            id INTEGER PRIMARY KEY,
+            uni_id INTEGER NOT NULL,
+            name TEXT NOT NULL,
+            FOREIGN KEY(uni_id) REFERENCES UNIVERSITIES(id)
+        );
+        CREATE INDEX fac_uni_id_index ON FACULTIES(uni_id);
+        DROP TABLE IF EXISTS DEPARTMENTS;
+        CREATE TABLE DEPARTMENTS(
+            id INTEGER PRIMARY KEY,
+            fac_id INTEGER NOT NULL,
+            name TEXT NOT NULL,
+            FOREIGN KEY(fac_id) REFERENCES FACULTIES(id)
+        );
+        CREATE INDEX dep_fac_id_index ON DEPARTMENTS(fac_id);
+    '''
+    )
+    
+    uni_df = pd.read_excel('../../data/universite.xls')
+    uni_df.drop(['status'], axis = 1, inplace = True)
+    uni_df.columns = ['id', 'name']
+    uni_df.to_sql('UNIVERSITIES', conn, if_exists='append', index = False)
+
+    fac_df = pd.read_excel('../../data/fakulte.xls')
+    fac_df.drop(['status'], axis = 1, inplace = True)
+    fac_df.columns = ['id', 'uni_id', 'name']
+    fac_df.to_sql('FACULTIES', conn, if_exists='append', index = False)
+
+    dep_df = pd.read_excel('../../data/bolum.xlsx')
+    dep_df.drop(['status', 'universite_id'], axis = 1, inplace = True)
+    dep_df.columns = ['fac_id', 'name']
+    dep_df['id'] = np.arange(1,dep_df['name'].size + 1)
+    dep_df.to_sql('DEPARTMENTS', conn, if_exists='append', index = False)
+
 """
     This functions works like finalize, but in non-verbose mode only. This function also creates a table
     in the database for original job advertisement texts, if original dataset_filename is given.
 """
 def finalizeCompact(extra_info, clusters_kmeans_tfidf, clusters_kmeans_cnt, dataset = None):
-    counts = extra_info[6]
-    clusters_kmeans_tfidf = clusters_as_string(clusters_kmeans_tfidf, counts)
-    clusters_kmeans_cnt = clusters_as_string(clusters_kmeans_cnt, counts)
+    data_df = pd.read_excel(dataset)
+    diff = set(data_df[data_df.columns[2]].values.tolist()) - set(extra_info[0])
+    data_df = data_df[data_df[data_df.columns[2]].apply(lambda x: False if x in diff else True)]
+
+    # Create and key value pair for index read from original data file, 
+    # key: indexes, value: indexing of the actual list. [0, len(index))
+    ids_df = data_df[data_df.columns[2]].values.tolist()
+    ids_df = {k:v for v, k in enumerate(ids_df)}
+    text_df = data_df[data_df.columns[7]].values.tolist()
+    text_cleared_df = data_df[data_df.columns[9]].values.tolist()
+    
+    text = []
+    text_cleared = [] 
+
+    # Find the correct text from the index placement of extra_info, since all the
+    # other information are included in that pack aswell.
+    for id in extra_info[0]:
+        # Get the array index of 'id' from extra_info pack.
+        # Use that index to find the text and text_cleared from the data list
+        idx = ids_df[id]
+        text.append(text_df[idx])
+        text_cleared.append(text_cleared_df[idx])
+
+    print('Data Size(id): {}, Size: {}'.format(len(ids), len(extra_info[0])))
+    print('Data Size(text): {}, Size: {}'.format(len(text), len(extra_info[0])))
+    
+    conn = sqlite3.connect('../../data/data.db')
+    c = conn.cursor()
 
     data = {'id': extra_info[0], 'exp': extra_info[1], 'max_exp': extra_info[2], 'position': extra_info[3],
-            'cities': extra_info[4], 'ed_status': extra_info[5], 'clusters_tfidf': clusters_kmeans_tfidf, 'clusters_cnt': clusters_kmeans_cnt}
-    
+            'ed_status': extra_info[5], 'text' : text, 'text_clear': text_cleared}
+
     frame = pd.DataFrame(data)
 
-    conn = sqlite3.connect('cluster_data.db')
-    c = conn.cursor()
-    c.execute(
-    ''' 
-        DROP TABLE IF EXISTS CLUSTER_DATA
-    ''')
-
-    c.execute(
-    ''' 
-        CREATE TABLE CLUSTER_DATA(
+    c.executescript(
+    '''
+        DROP TABLE IF EXISTS JOB_DATA;
+        CREATE TABLE JOB_DATA(
             id INTEGER PRIMARY KEY,
             exp INTEGER NOT NULL,
             max_exp INTEGER NOT NULL,
             position TEXT NOT NULL,
-            cities TEXT NOT NULL,
             ed_status INTEGER NOT NULL,
-            clusters_tfidf TEXT,
-            clusters_cnt TEXT
-        ) WITHOUT ROWID
+            text TEXT NOT NULL,
+            text_clear TEXT NOT NULL
+        );
+
+        CREATE INDEX job_exp_index ON JOB_DATA(exp);
+        CREATE INDEX job_max_exp_index ON JOB_DATA(max_exp);
+        CREATE INDEX job_position_index ON JOB_DATA(position);
+        CREATE INDEX job_ed_status_index ON JOB_DATA(ed_status);
     ''')
+
+    frame.to_sql('JOB_DATA', conn, if_exists='append', index=False)
+    
+    counts = extra_info[6]
+    clusters_kmeans_tfidf = clusters_as_string(clusters_kmeans_tfidf, counts)
+    clusters_kmeans_cnt = clusters_as_string(clusters_kmeans_cnt, counts)
+
+    data1 = {'job_id': extra_info[0], 'clusters_tfidf': clusters_kmeans_tfidf, 'clusters_cnt': clusters_kmeans_cnt}
+        
+    frame1 = pd.DataFrame(data1)
 
     c.executescript(
-    '''
-        CREATE INDEX exp_index ON CLUSTER_DATA(exp);
-        CREATE INDEX max_exp_index ON CLUSTER_DATA(max_exp);
-        CREATE INDEX position_index ON CLUSTER_DATA(position);
-        CREATE INDEX ed_status_index ON CLUSTER_DATA(ed_status);
+    ''' 
+        DROP TABLE IF EXISTS CLUSTER_DATA;
+        CREATE TABLE CLUSTER_DATA(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            job_id INTEGER NOT NULL,
+            clusters_tfidf TEXT NOT NULL,
+            clusters_cnt TEXT NOT NULL,
+            FOREIGN KEY(job_id) REFERENCES JOB_DATA(id)
+        );
+        CREATE INDEX cl_job_id_index ON CLUSTER_DATA(job_id);
     ''')
 
-    frame.to_sql('CLUSTER_DATA', conn, if_exists='append', index=False)
+    frame1.to_sql('CLUSTER_DATA', conn, if_exists='append', index=False)
     
-    # Check if dataset_filename is a valid string
-    if type(dataset) == str and dataset.endswith(".xlsx"):
-        data_df = pd.read_excel(dataset)
-        ids = data_df[data_df.columns[2]].values.tolist()
-        text = data_df[data_df.columns[7]].values.tolist()
-        text_cleared = data_df[data_df.columns[9]].values.tolist()
+    cities = extra_info[4]
+    cities_set = set()
+    for city in cities:
+        _cities = city.split(',')
+        for c in _cities:
+            cities_set.add(c)
 
-        data1 = {'id': ids, 'text': text, 'text_clear': text_cleared}
+    cities_unique = list(cities_set)
+    cities_df = pd.DataFrame({'id':np.arange(len(cities_unique)), 'name': cities_unique})
 
-        frame1 = pd.DataFrame(data1)
+    create_job_cities_table(conn, cities_df)
+    populate_job_cities_table(conn, cities_df, pd.DataFrame({'job_id': extra_info[0], 'cities': extra_info[4]}))
 
-        c.execute(
-        ''' 
-            CREATE TABLE JOB_DATA(
-                id INTEGER PRIMARY KEY,
-                text TEXT NOT NULL,
-                text_clear TEXT NOT NULL
-            ) WITHOUT ROWID
-        ''')
-        frame1.to_sql('JOB_DATA', conn, if_exists='append', index=False)
+    create_university_tables(conn)
 
     conn.close()
 
 
-def clustering(wordsLemmatized, stopwords, extra_info, dataset = None):
+def clustering(wordsLemmatized, stopwords, extra_info, dataset):
     # Tf-Idf Vectorizing
     tfidf_vectorizer = TfidfVectorizer(stop_words = stopwords)
     tfidf_matrix = tfidf_vectorizer.fit_transform(wordsLemmatized)
@@ -253,47 +408,11 @@ def clustering(wordsLemmatized, stopwords, extra_info, dataset = None):
     finalizeCompact(extra_info, clusters_kmeans_tfidf, clusters_kmeans_cnt, dataset = dataset)
 
     # Save vectorizer and clustering objects 
-    dumpObjectToFile(tfidf_vectorizer, "tfidf_vectorizer_dump.pickle")
-    dumpObjectToFile(kmeans_tfidf, "tfidf-cluster-kmeans_dump.pickle")
-    dumpObjectToFile(count_vect, "count_vect_dump.pickle")
-    dumpObjectToFile(kmeans_cnt, "count-cluster-kmeans_dump.pickle")
+    dumpObjectToFile(tfidf_vectorizer, "../pickle/tfidf_vectorizer_dump.pickle")
+    dumpObjectToFile(kmeans_tfidf, "../pickle/tfidf-cluster-kmeans_dump.pickle")
+    dumpObjectToFile(count_vect, "../pickle/count_vect_dump.pickle")
+    dumpObjectToFile(kmeans_cnt, "../pickle/count-cluster-kmeans_dump.pickle")
 
-
-
-def tfIdfVectorizedClustering(wordsLemmatized, stopwords, extra_info, verbose = True, save_xlsx = True):
-    # tf-idf vectorizing
-    tfidf_vectorizer = TfidfVectorizer(stop_words = stopwords)
-    tfidf_matrix = tfidf_vectorizer.fit_transform(wordsLemmatized)
-
-    # KMeans Clustering
-    num_clusters = 40
-    cluster_k_means = KMeans(n_clusters=num_clusters).fit(tfidf_matrix)
-    clusters_k_means = cluster_k_means.predict(tfidf_matrix)
-
-    print("Len Clusters_k_means:", len(clusters_k_means))
-    
-    finalize('tfidf', verbose, extra_info, clusters_k_means, save_xlsx = save_xlsx, matrix=tfidf_matrix, wordsLemmatized=wordsLemmatized, figure1_desc='K-Means Clusters', figure1_filename='KMeans_clusters_tfidf.png', figure2_desc='DBSCAN Clusters', figure2_filename='DBSCAN_cluters_tfidf.png')
-        
-    # Save vectorizer and clustering objects 
-    dumpObjectToFile(tfidf_vectorizer, "tfidf_vectorizer_dump.pickle")
-    dumpObjectToFile(cluster_k_means, "tfidf-cluster-kmeans_dump.pickle")
-
-
-def countVectorizerClustering(wordsLemmatized, stopwords, extra_info, verbose = True, save_xlsx = True):
-    
-    count_vect = CountVectorizer(stop_words=stopwords)
-    matrix = count_vect.fit_transform(wordsLemmatized)
-
-    # KMeans Clustering
-    num_clusters = 40
-    cluster_k_means = KMeans(n_clusters=num_clusters).fit(matrix)
-    clusters_k_means = cluster_k_means.predict(matrix)
- 
-    finalize('cnt', verbose, extra_info, clusters_k_means, matrix=matrix, save_xlsx = save_xlsx, wordsLemmatized=wordsLemmatized, figure1_desc='K-Means Clusters', figure1_filename='KMeans_clusters_cnt.png', figure2_desc='DBSCAN Clusters', figure2_filename='DBSCAN_cluters_cnt.png')
-
-    # Save vectorizer and clustering objects 
-    dumpObjectToFile(count_vect, "count_vect_dump.pickle")
-    dumpObjectToFile(cluster_k_means, "count-cluster-kmeans_dump.pickle")
 
 def parseList(_list):
     new_list = []
@@ -309,11 +428,9 @@ def parseList(_list):
 # Main driver
 if __name__ == '__main__':
     # read file
-    df = pd.read_csv("../ie-result.lm.txt", encoding="utf-8", header=None, sep=';')
+    df = pd.read_csv("../../data/ie-result.lm.txt", encoding="utf-8", header=None, sep=';')
     wordsLemmatized = df[df.columns[-1]].values.tolist()
     wordsLemmatized, counts = parseList(wordsLemmatized)
-    print("Counts:", sum(counts))
-    print("Len: ", len(wordsLemmatized))
     ids = df[df.columns[0]].values.tolist()
     exp = df[df.columns[1]].values.tolist()
     maxExp = df[df.columns[2]].values.tolist()
@@ -335,4 +452,4 @@ if __name__ == '__main__':
     #tfIdfVectorizedClustering(wordsLemmatized, stopwords, extra_info, verbose=False, save_xlsx = False)
     #countVectorizerClustering(wordsLemmatized, stopwords, extra_info, verbose = False, save_xlsx = False)
 
-    clustering(wordsLemmatized, stopwords, extra_info)
+    clustering(wordsLemmatized, stopwords, extra_info, dataset='../../data/dataset.xlsx')

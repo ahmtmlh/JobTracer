@@ -1,12 +1,16 @@
 package edu.deu.resumeie.service.model;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class Job implements Comparable<Job>{
 
     private String id;
     private int experience;
     private int maxExperience;
     private String position;
-    private String cities;
+    private List<String> cities;
     private int educationStatus;
     private String clusters;
     private String text;
@@ -23,7 +27,8 @@ public class Job implements Comparable<Job>{
         this.experience = experience;
         this.maxExperience = maxExperience;
         this.position = position;
-        this.cities = cities;
+        this.cities = new ArrayList<>();
+        this.cities.addAll(Arrays.asList(cities.split(",")));
         this.educationStatus = educationStatus;
         this.clusters = clusters;
     }
@@ -60,12 +65,16 @@ public class Job implements Comparable<Job>{
         this.position = position;
     }
 
-    public String getCities() {
+    public List<String> getCities() {
         return cities;
     }
 
-    public void setCities(String cities) {
-        this.cities = cities;
+    public void addCity(String city){
+        this.cities.add(city);
+    }
+
+    public void addCities(List<String> cities){
+        this.cities.addAll(cities);
     }
 
     public int getEducationStatus() {
@@ -119,5 +128,19 @@ public class Job implements Comparable<Job>{
     @Override
     public int compareTo(Job o) {
         return this.getClusters().compareTo(o.getClusters());
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj instanceof Job)
+            return this.id.equals(((Job)obj).id);
+        return false;
     }
 }

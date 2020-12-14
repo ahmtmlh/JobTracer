@@ -10,6 +10,7 @@ public class Matcher {
      * MatchingPriority for the matching process.
      *
      * <ul>
+     *     <li>NONE: Cluster matching will not be performed</li>
      *     <li>ALL : Include ALL Jobs that has one ore more common cluster with given clustering information</li>
      *     <li>HALF: Include Jobs that has at least HALF of the given clustering information</li>
      *     <li>FULL: Include Jobs that has the same clusters with given clustering information</li>
@@ -18,6 +19,7 @@ public class Matcher {
      * </ul>
      */
     public enum MatchingPriority {
+        NONE,
         ALL,
         HALF,
         FULL,
@@ -25,8 +27,8 @@ public class Matcher {
     }
 
     /**
-     * Matches given clustering information to given Jobs. Unique cluster number are used
-     * with HashSet. This function will return matched jobs with the given MatchingPriority
+     * Matches given clustering information to given Jobs. Matching process is done with with unique clusters.
+     * This function will return matched jobs with the given MatchingPriority
      * @see MatchingPriority MatchingPriority for priority options
      * @param preMatchedJobs A {@link List List} consists of Job information, which were pre matched by other CV information
      * @param cvClusters Clustering information of the CV
@@ -39,6 +41,10 @@ public class Matcher {
 
         if(priority == null){
             priority = MatchingPriority.ALL;
+        }
+        // If priority is NONE, do not perform any matching
+        if (priority == MatchingPriority.NONE){
+            return preMatchedJobs;
         }
 
         PriorityQueue<PriorityQueueItem> pq = new PriorityQueue<>();
