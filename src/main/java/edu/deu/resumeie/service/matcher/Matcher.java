@@ -65,8 +65,8 @@ public class Matcher {
                 if (intersectionSize > 0){
                     int ordinal = cvClustersSet.size() - intersectionSize + 1;
                     if (priority == MatchingPriority.ALL ||
-                            (priority == MatchingPriority.HALF && intersectionSize > cvClustersSet.size() / 2) ||
-                            (priority == MatchingPriority.FULL && intersectionSize == cvClustersSet.size()))
+                            (priority == MatchingPriority.HALF && intersectionSize >= jobAdClusterSet.size() / 2) ||
+                            (priority == MatchingPriority.FULL && intersectionSize == jobAdClusterSet.size()))
                         pq.add(new PriorityQueueItem(job, ordinal));
                 }
             }
@@ -95,8 +95,9 @@ public class Matcher {
     // WARNING: THIS FUNCTIONS CHANGES CONTENTS OF SET1
     // ALWAYS GIVE THE TEMP ELEMENT AS THE FIRST PARAMETER
     private static int getIntersectionSize(Set<Integer> set1, Set<Integer> set2){
-        set1.retainAll(set2);
-        return set1.size();
+        Set<Integer> temp = new HashSet<>(set1);
+        temp.retainAll(set2);
+        return temp.size();
     }
 
 

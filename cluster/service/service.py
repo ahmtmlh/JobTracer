@@ -61,7 +61,7 @@ def start_connection():
                 print("Connection by", address)
                 data = connection.recv(4096)
                 if not data:
-                    break
+                    continue
                 data = data.decode('utf-8')
                 response = process_data(data)
                 connection.sendall(response.encode('utf-8'))
