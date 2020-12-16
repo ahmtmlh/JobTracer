@@ -3,8 +3,10 @@ package edu.deu.resumeie.service.dao;
 import edu.deu.resumeie.service.connectionpool.BasicConnectionPool;
 import edu.deu.resumeie.service.connectionpool.ConnectionPool;
 import edu.deu.resumeie.service.connectionpool.ConnectionPoolException;
+import edu.deu.resumeie.service.model.City;
 import edu.deu.resumeie.service.model.Job;
 import edu.deu.resumeie.shared.SharedObjects;
+import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -12,7 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ClusterDataRepository {
+@Repository
+public class JobDataRepository {
 
     /**
      * Pre Matching SQL:
@@ -32,7 +35,7 @@ public class ClusterDataRepository {
 
     private final ConnectionPool connectionPool;
 
-    public ClusterDataRepository(){
+    public JobDataRepository(){
         connectionPool = BasicConnectionPool.getInstanceForUrl("jdbc:sqlite:./data/data.db");
     }
 
@@ -136,5 +139,75 @@ public class ClusterDataRepository {
         return new ArrayList<>(retMap.values());
     }
 
+
+    public List<City> getCities() {
+        String sql = "Select * from CITIES";
+        List<City> list = new ArrayList<City>();
+        try{
+            Connection conn = connectionPool.getConnection();
+            try(Statement stmt = conn.createStatement()){
+                ResultSet rs = stmt.executeQuery(sql);
+
+                while (rs.next()) {
+                    String zipCode = rs.getString("id");
+                    String cityName = rs.getString("name");
+                    list.add(new City(cityName,zipCode));
+                }
+                rs.close();
+            } finally {
+                connectionPool.releaseConnection(conn);
+            }
+        } catch(SQLException e){
+            e.printStackTrace();
+        } catch(ConnectionPoolException e){
+            System.err.println(e.getLocalizedMessage());
+        }
+
+        return list;
+    }
+
+    public List<String> getLanguages() {
+        List<String> array = new ArrayList<String>();
+        array.add("Afrikaans");
+        array.add("ALMANCA");
+        array.add("Amharca");
+        array.add("ARAPÇA");
+        array.add("ARNAVUTÇA");
+        array.add("AZERİCE");
+        array.add("BELARUSÇA");
+        array.add("BENGALCE");
+        array.add("BULGARCA");
+        array.add("BURMA");
+        array.add("CATALANCA");
+        array.add("ÇEKÇE");
+        array.add("ÇİNCE");
+
+        return array;
+
+    }
+
+    public List<String> getDriverLicenceTypes() {
+        List<String> array = new ArrayList<String>();
+
+        array.add("M");
+        array.add("A1");
+        array.add("A2");
+        array.add("A");
+        array.add("B1");
+        array.add("B");
+        array.add("BE");
+        array.add("C1");
+        array.add("C1E");
+        array.add("C");
+        array.add("CE");
+        array.add("D1");
+        array.add("D1E");
+        array.add("D");
+        array.add("DE");
+        array.add("F");
+        array.add("G");
+
+        return array;
+    }
 
 }

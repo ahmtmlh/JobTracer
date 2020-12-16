@@ -1,6 +1,6 @@
 package edu.deu.resumeie.service.service;
 
-import edu.deu.resumeie.service.dao.ClusterDataRepository;
+import edu.deu.resumeie.service.dao.JobDataRepository;
 import edu.deu.resumeie.service.json.ClusterServiceMessage;
 import edu.deu.resumeie.service.json.JsonMessage;
 import edu.deu.resumeie.service.matcher.Matcher;
@@ -16,12 +16,12 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ClusterMatchingService {
 
     private final InformationExtractor ie;
-    private final ClusterDataRepository clusterDataRepository;
+    private final JobDataRepository jobDataRepository;
 
 
     public ClusterMatchingService(){
         ie = new InformationExtractor(3);
-        clusterDataRepository = new ClusterDataRepository();
+        jobDataRepository = new JobDataRepository();
     }
 
     /**
@@ -38,7 +38,7 @@ public class ClusterMatchingService {
         AtomicReference<String> clustersReference = new AtomicReference<>();
         AtomicReference<List<Job>> preMatchedList = new AtomicReference<>();
 
-        Thread preMatcherThread = new Thread(() -> preMatchedList.set(clusterDataRepository.getPreMatchedJobAds(
+        Thread preMatcherThread = new Thread(() -> preMatchedList.set(jobDataRepository.getPreMatchedJobAds(
                 cv.getExperience(), cv.getEducationStatus(), cv.getProfession(), cv.getDesiredCities(), SharedObjects.serviceParams.getTextFields)));
 
         Thread clusterServiceThread = new Thread(() -> {
