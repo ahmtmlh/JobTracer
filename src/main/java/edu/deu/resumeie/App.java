@@ -105,17 +105,22 @@ public class App {
         // Test config
         String name = "Ahmet";
         String surname = "Veli";
-        String profession = "Kasiyer";
+        String profession = "Mimar";
         String educationStatus = "üniversite mezunu";
-        String cities = "Kocaeli, Denizli";
+        String cities = "*";
         int experience = 2;
-        List<String> qualificationList = Arrays.asList("Çalıştığım süre boyunca kasiyerlik yaptım", "Servis işlerine baktım", "Ara sıra garsonluk yaptım");
+        List<String> qualificationList = Arrays.asList(
+                "Yeni mezun oldum",
+                "AutoCad ve diğer çizim programlarına ileri derece hakimim",
+                "Görsel sanatlar ile yakından ilgileniyorum",
+                "restorasyon konusunda deneyimliyim"
+        );
 
         CV cv = new CV(name, surname, profession, educationStatus, cities, experience, qualificationList);
 
         ClusterMatchingService service = new ClusterMatchingService();
         // Matching priority will be retrieved from user
-        Optional<List<Job>> results = service.matchingProcess(cv, Matcher.MatchingPriority.HALF);
+        Optional<List<Job>> results = service.matchingProcess(cv, Matcher.MatchingPriority.NONE);
         if(results.isPresent()){
             System.out.printf("---------Found %d Jobs---------%n", results.get().size());
             results.get().forEach(System.out::println);
