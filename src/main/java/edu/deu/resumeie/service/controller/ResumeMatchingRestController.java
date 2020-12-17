@@ -14,8 +14,6 @@ public class ResumeMatchingRestController {
 	
 	@Autowired
 	private ResumeMatchingService resumeMatchingService;
-
-	
 	//Resume Matching
 	
 	@GetMapping("/cities")
@@ -24,11 +22,15 @@ public class ResumeMatchingRestController {
 		return ResponseEntity.ok(cities);
 	}
 
+	@GetMapping("/cities/{prefix}")
+	public ResponseEntity<List<City>> getCities(@PathVariable String prefix){
+		List<City> cities = resumeMatchingService.getCities(prefix);
+		return cities.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(cities);
+	}
+
 	@GetMapping("/languages")
 	public ResponseEntity<List<String>> getLanguages() {
-	    
 		List<String> languages = resumeMatchingService.getLanguages();
-	    
 		return ResponseEntity.ok(languages);
 	}
 	

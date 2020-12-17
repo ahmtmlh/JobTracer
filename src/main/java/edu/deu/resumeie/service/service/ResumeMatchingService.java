@@ -1,5 +1,6 @@
 package edu.deu.resumeie.service.service;
 
+import edu.deu.resumeie.service.dao.CityDataRepository;
 import edu.deu.resumeie.service.dao.JobDataRepository;
 import edu.deu.resumeie.service.model.City;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,19 +12,25 @@ import java.util.List;
 public class ResumeMatchingService {
 
 	@Autowired
-	private JobDataRepository repository;
+	private JobDataRepository jobDataRepository;
+	@Autowired
+	private CityDataRepository cityDataRepository;
 
-	// Resume matching
+
 	public List<City> getCities() {
-		return repository.getCities();
+		return cityDataRepository.getCities();
+	}
+
+	public List<City> getCities(String prefix){
+		return cityDataRepository.getCitiesStartingWith(prefix);
 	}
 
 	public List<String> getLanguages() {
-		return repository.getLanguages();
+		return jobDataRepository.getLanguages();
 	}
 
 	public List<String> getDriverLicenceTypes() {
-		return repository.getDriverLicenceTypes();
+		return jobDataRepository.getDriverLicenceTypes();
 
 	}
 	

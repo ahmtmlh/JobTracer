@@ -6,6 +6,7 @@ import edu.deu.resumeie.service.json.JsonMessage;
 import edu.deu.resumeie.service.matcher.Matcher;
 import edu.deu.resumeie.service.model.CV;
 import edu.deu.resumeie.service.model.Job;
+import edu.deu.resumeie.service.service.socket.Client;
 import edu.deu.resumeie.shared.SharedObjects;
 import edu.deu.resumeie.training.nlp.informationextraction.InformationExtractor;
 

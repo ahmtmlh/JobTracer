@@ -140,32 +140,6 @@ public class JobDataRepository {
     }
 
 
-    public List<City> getCities() {
-        String sql = "Select * from CITIES";
-        List<City> list = new ArrayList<City>();
-        try{
-            Connection conn = connectionPool.getConnection();
-            try(Statement stmt = conn.createStatement()){
-                ResultSet rs = stmt.executeQuery(sql);
-
-                while (rs.next()) {
-                    String zipCode = rs.getString("id");
-                    String cityName = rs.getString("name");
-                    list.add(new City(cityName,zipCode));
-                }
-                rs.close();
-            } finally {
-                connectionPool.releaseConnection(conn);
-            }
-        } catch(SQLException e){
-            e.printStackTrace();
-        } catch(ConnectionPoolException e){
-            System.err.println(e.getLocalizedMessage());
-        }
-
-        return list;
-    }
-
     public List<String> getLanguages() {
         List<String> array = new ArrayList<String>();
         array.add("Afrikaans");

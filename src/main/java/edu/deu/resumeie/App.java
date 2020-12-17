@@ -103,31 +103,31 @@ public class App {
 
     private static void serviceMain(String[] args) {
         // Test config
-        String name = "Ahmet";
-        String surname = "Veli";
-        String profession = "Mimar";
-        String educationStatus = "üniversite mezunu";
-        String cities = "*";
-        int experience = 2;
-        List<String> qualificationList = Arrays.asList(
-                "Yeni mezun oldum",
-                "AutoCad ve diğer çizim programlarına ileri derece hakimim",
-                "Görsel sanatlar ile yakından ilgileniyorum",
-                "restorasyon konusunda deneyimliyim"
-        );
+//        String name = "Ahmet";
+//        String surname = "Veli";
+//        String profession = "Mimar";
+//        String educationStatus = "üniversite mezunu";
+//        String cities = "*";
+//        int experience = 2;
+//        List<String> qualificationList = Arrays.asList(
+//                "Yeni mezun oldum",
+//                "AutoCad ve diğer çizim programlarına ileri derece hakimim",
+//                "Görsel sanatlar ile yakından ilgileniyorum",
+//                "restorasyon konusunda deneyimliyim"
+//        );
+//
+//        CV cv = new CV(name, surname, profession, educationStatus, cities, experience, qualificationList);
+//
+//        ClusterMatchingService service = new ClusterMatchingService();
+//        // Matching priority will be retrieved from user
+//        Optional<List<Job>> results = service.matchingProcess(cv, Matcher.MatchingPriority.NONE);
+//        if(results.isPresent()){
+//            System.out.printf("---------Found %d Jobs---------%n", results.get().size());
+//            results.get().forEach(System.out::println);
+//        } else {
+//            System.err.println("Something Went Wrong");
+//        }
 
-        CV cv = new CV(name, surname, profession, educationStatus, cities, experience, qualificationList);
-
-        ClusterMatchingService service = new ClusterMatchingService();
-        // Matching priority will be retrieved from user
-        Optional<List<Job>> results = service.matchingProcess(cv, Matcher.MatchingPriority.NONE);
-        if(results.isPresent()){
-            System.out.printf("---------Found %d Jobs---------%n", results.get().size());
-            results.get().forEach(System.out::println);
-        } else {
-            System.err.println("Something Went Wrong");
-        }
-
-        //SpringApplication.run(WebApp.class, args);
+        SpringApplication.run(WebApp.class, args);
     }
 }

@@ -3,7 +3,7 @@ package edu.deu.resumeie.shared;
 public class SharedObjects {
 
     // --------- CONSTANTS -------- //
-    public static final String VERSION = "V1.4.4";
+    public static final String VERSION = "V1.4.5";
 
 
     // --------- OBJECTS -------- //
