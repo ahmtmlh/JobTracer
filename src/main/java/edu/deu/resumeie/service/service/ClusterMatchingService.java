@@ -9,16 +9,20 @@ import edu.deu.resumeie.service.model.Job;
 import edu.deu.resumeie.service.service.socket.Client;
 import edu.deu.resumeie.shared.SharedObjects;
 import edu.deu.resumeie.training.nlp.informationextraction.InformationExtractor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
+@Service
 public class ClusterMatchingService {
 
     private final InformationExtractor ie;
-    private final JobDataRepository jobDataRepository;
 
+    //@Autowired
+    private JobDataRepository jobDataRepository;
 
     public ClusterMatchingService(){
         ie = new InformationExtractor(3);

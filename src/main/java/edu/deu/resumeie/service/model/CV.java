@@ -1,25 +1,10 @@
 package edu.deu.resumeie.service.model;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import static edu.deu.resumeie.shared.SharedObjects.educationStatusValues;
 
 public class CV {
 
-    private static final Map<String, Integer> educationStatusValues = new HashMap<>();
-    static{
-        educationStatusValues.put("ilköğretim mezunu", 1);
-        educationStatusValues.put("lise öğrencisi", 2);
-        educationStatusValues.put("lise mezunu", 3);
-        educationStatusValues.put("meslek yüksekokulu öğrencisi", 4);
-        educationStatusValues.put("meslek yüksekokulu mezunu", 5);
-        educationStatusValues.put("üniversite öğrencisi", 6);
-        educationStatusValues.put("üniversite mezunu", 7);
-        educationStatusValues.put("master öğrencisi", 8);
-        educationStatusValues.put("master mezunu", 9);
-        educationStatusValues.put("doktora öğrencisi", 10);
-        educationStatusValues.put("doktora mezunu", 11);
-    }
 
     private String name;
     private String surname;

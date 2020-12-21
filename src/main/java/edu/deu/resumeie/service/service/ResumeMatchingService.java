@@ -1,39 +1,25 @@
 package edu.deu.resumeie.service.service;
 
-import edu.deu.resumeie.service.dao.CityDataRepository;
 import edu.deu.resumeie.service.dao.JobDataRepository;
-import edu.deu.resumeie.service.model.City;
+import edu.deu.resumeie.service.matcher.Matcher;
+import edu.deu.resumeie.service.model.CV;
+import edu.deu.resumeie.service.model.Job;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+
 
 @Service
 public class ResumeMatchingService {
 
 	@Autowired
-	private JobDataRepository jobDataRepository;
-	@Autowired
-	private CityDataRepository cityDataRepository;
+	private ClusterMatchingService clusterMatchingService;
 
-
-	public List<City> getCities() {
-		return cityDataRepository.getCities();
+	public Optional<List<Job>> getMatchedJobs(CV cv, Matcher.MatchingPriority priority){
+		return clusterMatchingService.matchingProcess(cv, priority);
 	}
 
-	public List<City> getCities(String prefix){
-		return cityDataRepository.getCitiesStartingWith(prefix);
-	}
-
-	public List<String> getLanguages() {
-		return jobDataRepository.getLanguages();
-	}
-
-	public List<String> getDriverLicenceTypes() {
-		return jobDataRepository.getDriverLicenceTypes();
-
-	}
-	
-	
 
 }

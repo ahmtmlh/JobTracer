@@ -36,7 +36,7 @@ public class JobDataRepository {
     private final ConnectionPool connectionPool;
 
     public JobDataRepository(){
-        connectionPool = BasicConnectionPool.getInstanceForUrl("jdbc:sqlite:./data/data.db");
+        connectionPool = BasicConnectionPool.getInstanceForUrl(SharedObjects.DB_CONN_STR);
     }
 
     private void prepareStatementForPreMatch(PreparedStatement preparedStatement, int exp, int ed_status,
@@ -137,51 +137,6 @@ public class JobDataRepository {
         }
 
         return new ArrayList<>(retMap.values());
-    }
-
-
-    public List<String> getLanguages() {
-        List<String> array = new ArrayList<String>();
-        array.add("Afrikaans");
-        array.add("ALMANCA");
-        array.add("Amharca");
-        array.add("ARAPÇA");
-        array.add("ARNAVUTÇA");
-        array.add("AZERİCE");
-        array.add("BELARUSÇA");
-        array.add("BENGALCE");
-        array.add("BULGARCA");
-        array.add("BURMA");
-        array.add("CATALANCA");
-        array.add("ÇEKÇE");
-        array.add("ÇİNCE");
-
-        return array;
-
-    }
-
-    public List<String> getDriverLicenceTypes() {
-        List<String> array = new ArrayList<String>();
-
-        array.add("M");
-        array.add("A1");
-        array.add("A2");
-        array.add("A");
-        array.add("B1");
-        array.add("B");
-        array.add("BE");
-        array.add("C1");
-        array.add("C1E");
-        array.add("C");
-        array.add("CE");
-        array.add("D1");
-        array.add("D1E");
-        array.add("D");
-        array.add("DE");
-        array.add("F");
-        array.add("G");
-
-        return array;
     }
 
 }

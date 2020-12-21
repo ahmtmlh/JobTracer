@@ -271,20 +271,16 @@ def create_university_tables(conn):
     '''
     )
     
-    uni_df = pd.read_excel('../../data/universite.xls')
-    uni_df.drop(['status'], axis = 1, inplace = True)
+    uni_df = pd.read_excel('../../data/universiteler.xlsx')
     uni_df.columns = ['id', 'name']
     uni_df.to_sql('UNIVERSITIES', conn, if_exists='append', index = False)
 
-    fac_df = pd.read_excel('../../data/fakulte.xls')
-    fac_df.drop(['status'], axis = 1, inplace = True)
+    fac_df = pd.read_excel('../../data/fakulteler.xlsx')
     fac_df.columns = ['id', 'uni_id', 'name']
     fac_df.to_sql('FACULTIES', conn, if_exists='append', index = False)
 
-    dep_df = pd.read_excel('../../data/bolum.xlsx')
-    dep_df.drop(['status', 'universite_id'], axis = 1, inplace = True)
-    dep_df.columns = ['fac_id', 'name']
-    dep_df['id'] = np.arange(1,dep_df['name'].size + 1)
+    dep_df = pd.read_excel('../../data/bolumler.xlsx')
+    dep_df.columns = ['id', 'fac_id', 'name']
     dep_df.to_sql('DEPARTMENTS', conn, if_exists='append', index = False)
 
 """

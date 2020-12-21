@@ -3,9 +3,6 @@ package edu.deu.resumeie.service.dao;
 import edu.deu.resumeie.service.connectionpool.BasicConnectionPool;
 import edu.deu.resumeie.service.connectionpool.ConnectionPool;
 import edu.deu.resumeie.service.connectionpool.ConnectionPoolException;
-import edu.deu.resumeie.service.model.dto.DepartmentDTO;
-import edu.deu.resumeie.service.model.dto.FacultyDTO;
-import edu.deu.resumeie.service.model.dto.UniversityDTO;
 import edu.deu.resumeie.shared.SharedObjects;
 import org.springframework.stereotype.Repository;
 
@@ -14,26 +11,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public class UniversityDataRepository {
+public class LanguageAndLicenseDataRepository {
 
     private final ConnectionPool connectionPool;
 
-    public UniversityDataRepository(){
+    public LanguageAndLicenseDataRepository(){
         connectionPool = BasicConnectionPool.getInstanceForUrl(SharedObjects.DB_CONN_STR);
     }
 
-    public List<UniversityDTO> getUniversities(){
-        String sql = "SELECT * FROM UNIVERSITIES";
-        List<UniversityDTO> list = new ArrayList<>();
+
+    public List<String> getLanguages() {
+        String sql = "SELECT name FROM LANGUAGES";
+        List<String> languages = new ArrayList<>();
         try{
             Connection conn = connectionPool.getConnection();
             try(Statement stmt = conn.createStatement()){
                 ResultSet rs = stmt.executeQuery(sql);
 
                 while (rs.next()) {
-                    int id = rs.getInt(1);
-                    String name = rs.getString(2);
-                    list.add(new UniversityDTO(id, name));
+                    languages.add(rs.getString(1));
                 }
                 rs.close();
             } finally {
@@ -44,26 +40,21 @@ public class UniversityDataRepository {
         } catch(ConnectionPoolException e){
             System.err.println(e.getLocalizedMessage());
         }
-
-        return list;
+        return languages;
     }
 
 
-    public List<FacultyDTO> getFacultyOfUniversity(int uniId){
-        String sql = "SELECT FACULTIES.id, FACULTIES.name FROM FACULTIES " +
-                "INNER JOIN UNIVERSITIES ON FACULTIES.uni_id = UNIVERSITIES.id WHERE UNIVERSITIES.id = ?";
-        List<FacultyDTO> faculties = new ArrayList<>();
+    public List<String> getLanguages(String prefix) {
+        String sql = "SELECT name FROM LANGUAGES WHERE name LIKE ?";
+        List<String> languages = new ArrayList<>();
         try{
             Connection conn = connectionPool.getConnection();
             try(PreparedStatement preparedStatement = conn.prepareStatement(sql)){
-                preparedStatement.setInt(1, uniId);
+                preparedStatement.setString(1, prefix + "%");
                 ResultSet rs = preparedStatement.executeQuery();
 
                 while (rs.next()) {
-                    int id = rs.getInt(1);
-                    String name = rs.getString(2);
-
-                    faculties.add(new FacultyDTO(id, uniId, name));
+                    languages.add(rs.getString(1));
                 }
                 rs.close();
             } finally {
@@ -74,30 +65,21 @@ public class UniversityDataRepository {
         } catch(ConnectionPoolException e){
             System.err.println(e.getLocalizedMessage());
         }
-
-        return faculties;
+        return languages;
     }
 
 
-    public List<DepartmentDTO> getDepartmentOfFacultyAndUniversity(int facId, int uniId){
-        String sql = "SELECT DEPARTMENTS.id, DEPARTMENTS.name FROM DEPARTMENTS " +
-                     "INNER JOIN FACULTIES ON DEPARTMENTS.fac_id = FACULTIES.id " +
-                     "INNER JOIN UNIVERSITIES ON FACULTIES.uni_id = UNIVERSITIES.id " +
-                     "WHERE UNIVERSITIES.id = ? AND FACULTIES.id = ?";
 
-        List<DepartmentDTO> departments = new ArrayList<>();
+    public List<String> getDriverLicenceTypes() {
+        String sql = "SELECT type FROM DRIVING_LICENSES";
+        List<String> drivingLicenses = new ArrayList<>();
         try{
             Connection conn = connectionPool.getConnection();
-            try(PreparedStatement preparedStatement = conn.prepareStatement(sql)){
-                preparedStatement.setInt(1, uniId);
-                preparedStatement.setInt(2, facId);
-                ResultSet rs = preparedStatement.executeQuery();
+            try(Statement stmt = conn.createStatement()){
+                ResultSet rs = stmt.executeQuery(sql);
 
                 while (rs.next()) {
-                    int id = rs.getInt(1);
-                    String name = rs.getString(2);
-
-                    departments.add(new DepartmentDTO(id, facId, name));
+                    drivingLicenses.add(rs.getString(1));
                 }
                 rs.close();
             } finally {
@@ -108,8 +90,8 @@ public class UniversityDataRepository {
         } catch(ConnectionPoolException e){
             System.err.println(e.getLocalizedMessage());
         }
-
-        return departments;
+        return drivingLicenses;
     }
+
 
 }

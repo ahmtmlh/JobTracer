@@ -11,27 +11,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
 
+import static edu.deu.resumeie.shared.SharedObjects.educationStatusValues;
+
 public class JobDataReader implements DataReader{
 
     private final Sheet sheet;
     private final Workbook workbook;
     private final List<InformationExtractor.ListItem> list;
     private boolean closed;
-
-    private static final Map<String, Integer> edStatusValues = new HashMap<>();
-    static{
-        edStatusValues.put("ilköğretim mezunu", 1);
-        edStatusValues.put("lise öğrencisi", 2);
-        edStatusValues.put("lise mezunu", 3);
-        edStatusValues.put("meslek yüksekokulu öğrencisi", 4);
-        edStatusValues.put("meslek yüksekokulu mezunu", 5);
-        edStatusValues.put("üniversite öğrencisi", 6);
-        edStatusValues.put("üniversite mezunu", 7);
-        edStatusValues.put("master öğrencisi", 8);
-        edStatusValues.put("master mezunu", 9);
-        edStatusValues.put("doktora öğrencisi", 10);
-        edStatusValues.put("doktora mezunu", 11);
-    }
 
     public JobDataReader(File file) throws IOException{
         FileInputStream fileInputStream = new FileInputStream(file);
@@ -81,10 +68,10 @@ public class JobDataReader implements DataReader{
 
     private int getEdStatusNumericalValue(String edStatus){
         if (edStatus.indexOf(',') == -1){
-            return edStatusValues.get(edStatus.toLowerCase());
+            return educationStatusValues.get(edStatus.toLowerCase());
         }
         String minEducationStatus = edStatus.substring(0, edStatus.indexOf(',')).toLowerCase();
-        return edStatusValues.get(minEducationStatus);
+        return educationStatusValues.get(minEducationStatus);
     }
 
     /**
