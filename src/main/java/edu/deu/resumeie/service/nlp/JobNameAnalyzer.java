@@ -1,69 +1,45 @@
 package edu.deu.resumeie.service.nlp;
 
-import edu.deu.resumeie.training.nlp.morphology.lemmatization.Lemmatizer;
-import edu.deu.resumeie.training.nlp.morphology.lemmatization.TurkishLemmatizer;
+import edu.deu.resumeie.service.dao.JobDataRepository;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.Set;
+import java.util.List;
+import java.util.Map;
 import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Arrays;
+
 
 public class JobNameAnalyzer {
 
-    private static final String JOB_INFO_FILE = "./data/allJobs.txt";
-
-
-    private final Lemmatizer lemmatizer;
-    private final Set<String> jobs;
-    private boolean error;
+    /*
+     * Key of this map will point to trimmed and lower case versions of professions.
+     * Value of this map will point to original name of professions.
+     */
+    private final Map<String, String> jobs;
 
     public JobNameAnalyzer() {
-        error = false;
-        lemmatizer = new TurkishLemmatizer();
-        jobs = new HashSet<>();
+        jobs = new HashMap<>();
         init();
     }
 
     private void init() {
-        try (BufferedReader br = new BufferedReader(new FileReader(JOB_INFO_FILE))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                line = line.trim().toLowerCase();
-                jobs.add(line);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            error = true;
-        }
+        List<String> jobsTemp = new JobDataRepository().getJobPositions();
+        jobsTemp.forEach(job -> jobs.put(job.trim().toLowerCase(), job));
     }
 
-
-    private String lemmatize(String str){
-        lemmatizer.flush();
-        lemmatizer.lemmatizeSentence(str, true);
-        return lemmatizer.getLemmatizedSentence();
-    }
-
-    private double jaccardIndex(String s1, String s2) {
-        s1 = lemmatize(s1);
-        s2 = lemmatize(s2);
-
+    private float compare(String s1, String s2) {
         Set<String> set1 = new HashSet<>(Arrays.asList(s1.split(" ").clone()));
         Set<String> set2 = new HashSet<>(Arrays.asList(s2.split(" ").clone()));
 
-        int union;
-        int intersection = 0;
+        int union = set1.size() + set2.size();
 
-        for (String word1 : set1) {
-            for (String word2 : set2) {
-                if (word1.equals(word2)) intersection++;
-            }
-        }
-        union = set1.size() + set2.size() - intersection;
+        set1.retainAll(set2);
+        int intersection = set1.size();
 
-        return (double)intersection / (double)union;
+        union = union - intersection;
+
+        return (float)intersection / (float)union;
     }
 
     /**
@@ -77,27 +53,29 @@ public class JobNameAnalyzer {
      * @return Best matching JobInfo from the dataset.
      */
     public String getBestMatch(String jobInfo) {
-        if (error){
-            System.err.println("JobNameAnalyzer has error");
-            return jobInfo;
-        }
 
         String temp = jobInfo.toLowerCase().trim();
-        if (jobs.contains(temp)){
-            return jobInfo;
+        if (jobs.containsKey(temp)){
+            return jobs.get(temp);
         }
 
-        double score = -1.0;
+        float score = -1.0f;
         String candidate = null;
 
-        for(String job : jobs){
-            double tempScore = jaccardIndex(job, temp);
+        for(String job : jobs.keySet()){
+            float tempScore = compare(job, temp);
             if (tempScore > score){
                 score = tempScore;
                 candidate = job;
+            } else if (tempScore == score){
+                String[] jobTokens = job.split(" ");
+                String[] cvTokens = temp.split(" ");
+                if (jobTokens[0].equals(cvTokens[0]))
+                    candidate = job;
             }
         }
-        return candidate;
+        // Return the name gathered from DB, rather than lower-case and trimmed version.
+        return jobs.get(candidate);
     }
 
 

@@ -19,9 +19,16 @@ public class ResumeMatchingRestController {
 
 	@GetMapping("/positions/{prefix}")
 	public ResponseEntity<List<String>> getJobPositions(@PathVariable(name = "prefix") String prefix){
-		List<String> positions = resumeMatchingService.getJobPosition(prefix);
+		List<String> positions = resumeMatchingService.getJobPositionStartingWith(prefix);
 		return positions.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(positions);
 	}
+
+	@GetMapping("/positions")
+	public ResponseEntity<List<String>> getJobPositions(){
+		List<String> positions = resumeMatchingService.getJobPositions();
+		return positions.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(positions);
+	}
+
 
 	@PostMapping("/resumeInfo")
 	public ResponseEntity<?> getNew(@RequestBody @Valid CVDTO cv){

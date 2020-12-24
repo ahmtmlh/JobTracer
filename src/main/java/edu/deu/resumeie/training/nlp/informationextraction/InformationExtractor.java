@@ -84,7 +84,7 @@ public class InformationExtractor {
 		multipleMatchList = new ArrayList<>();
 
 		int current = 0;
-		try(BufferedReader br = new BufferedReader(new FileReader(new File(LIST_FILE)))){
+		try(BufferedReader br = new BufferedReader(new FileReader(LIST_FILE))){
 			String line;
 			String identifier = null;
 			boolean itemValid;
@@ -397,6 +397,7 @@ public class InformationExtractor {
 	 * @param list List of strings.
 	 */
 	public void extractFromStringList(List<String> list){
+		if (list == null) return;
 		for (String str : list){
 			extractFromListItem(new ListItem(str));
 		}
@@ -428,7 +429,7 @@ public class InformationExtractor {
 	 */
 	public void saveToFile(String filename) {
 		this.saveFileName = filename;
-		try(BufferedWriter bw = new BufferedWriter(new FileWriter(new File(filename+".txt")))){
+		try(BufferedWriter bw = new BufferedWriter(new FileWriter(filename+".txt"))){
 			for (Map.Entry<ListItem, List<String>> entry : result.entrySet()) {
 				String res = getFormattedString(entry.getKey(), entry.getValue());
 				bw.write(res);
@@ -437,7 +438,7 @@ public class InformationExtractor {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		try(BufferedWriter bw = new BufferedWriter(new FileWriter(new File(filename+".lm.txt")))){
+		try(BufferedWriter bw = new BufferedWriter(new FileWriter(filename+".lm.txt"))){
 
 			for (Map.Entry<ListItem, List<String>> entry : lemmatizedResult.entrySet()){
 				String res = getFormattedString(entry.getKey(), entry.getValue());

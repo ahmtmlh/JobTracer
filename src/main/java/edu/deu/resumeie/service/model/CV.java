@@ -11,7 +11,7 @@ public class CV {
 
     private String profession;
     private int educationStatus;
-    private List<City> desiredCities;
+    private final List<City> desiredCities;
     private int experience;
     private List<String> qualificationList;
 

@@ -6,6 +6,7 @@ import edu.deu.resumeie.service.json.JsonMessage;
 import edu.deu.resumeie.service.matcher.Matcher;
 import edu.deu.resumeie.service.model.CV;
 import edu.deu.resumeie.service.model.Job;
+import edu.deu.resumeie.service.nlp.JobNameAnalyzer;
 import edu.deu.resumeie.service.service.socket.Client;
 import edu.deu.resumeie.shared.SharedObjects;
 import edu.deu.resumeie.training.nlp.informationextraction.InformationExtractor;
@@ -23,11 +24,14 @@ public class ClusterMatchingService {
 
     //@Autowired
     private final JobDataRepository jobDataRepository;
+    private final JobNameAnalyzer jobNameAnalyzer;
 
     public ClusterMatchingService(){
         ie = new InformationExtractor(3);
         jobDataRepository = new JobDataRepository();
+        jobNameAnalyzer = new JobNameAnalyzer();
     }
+
 
     /**
      * MainProcess of the back-end service. Receives a CV from front-end service and
@@ -39,6 +43,10 @@ public class ClusterMatchingService {
      * @param priority Matching priority for the matching process
      */
     public Optional<List<Job>> matchingProcess(CV cv, Matcher.MatchingPriority priority){
+
+        // Make this change to CV to make sure that there is a job %100
+        cv.setProfession(jobNameAnalyzer.getBestMatch(cv.getProfession()));
+        System.out.println("Current profession: " + cv.getProfession());
 
         AtomicReference<String> clustersReference = new AtomicReference<>();
         AtomicReference<List<Job>> preMatchedList = new AtomicReference<>();
@@ -73,10 +81,10 @@ public class ClusterMatchingService {
             Optional<ClusterServiceMessage> receivedMessage = ClusterServiceMessage.parse(receivedMessageStr);
             receivedMessage.ifPresent(message -> clustersReference.set(message.getArrayAsString("clusters")));
 
-            // At this point, preMatchingThread is most likely to be done
-            // Retrieve both information from AtomicReferences and begin matching process.
+
         });
 
+        // Retrieve both information from AtomicReferences and begin matching process.
         List<Job> finalList = null;
         try{
             // Start threads

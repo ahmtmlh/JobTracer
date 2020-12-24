@@ -70,6 +70,28 @@ public class JobDataRepository {
         return ret;
     }
 
+    public List<String> getJobPositions(){
+        String sql = "SELECT DISTINCT position FROM JOB_DATA";
+        List<String> positions = new ArrayList<>();
+        try{
+            Connection conn = connectionPool.getConnection();
+            try(Statement stmt = conn.createStatement()){
+                ResultSet rs = stmt.executeQuery(sql);
+                while(rs.next()){
+                    positions.add(rs.getString(1));
+                }
+                rs.close();
+            } finally {
+                connectionPool.releaseConnection(conn);
+            }
+        } catch(SQLException e){
+            e.printStackTrace();
+        } catch(ConnectionPoolException e){
+            System.err.println(e.getLocalizedMessage());
+        }
+
+        return positions;
+    }
 
     public List<String> getJobPositionStartingWith(String prefix){
         String sql = "SELECT DISTINCT position FROM JOB_DATA WHERE position LIKE ?";

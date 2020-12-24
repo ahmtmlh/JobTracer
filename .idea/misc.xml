@@ -12,6 +12,9 @@
       <item index="7" class="java.lang.String" itemvalue="org.springframework.web.bind.annotation.RestController" />
     </list>
   </component>
+  <component name="FrameworkDetectionExcludesConfiguration">
+    <type id="Python" />
+  </component>
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>

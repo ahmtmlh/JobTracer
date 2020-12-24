@@ -19,12 +19,17 @@ public class ResumeMatchingService {
 	@Autowired
 	private JobDataRepository jobDataRepository;
 
+
 	public Optional<List<Job>> getMatchedJobs(CV cv, Matcher.MatchingPriority priority){
 		return clusterMatchingService.matchingProcess(cv, priority);
 	}
 
-	public List<String> getJobPosition(String prefix){
+	public List<String> getJobPositionStartingWith(String prefix){
 		return jobDataRepository.getJobPositionStartingWith(prefix);
+	}
+
+	public List<String> getJobPositions(){
+		return jobDataRepository.getJobPositions();
 	}
 
 }
