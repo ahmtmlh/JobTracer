@@ -40,13 +40,13 @@ public class JobDataRepository {
     }
 
     private void prepareStatementForPreMatch(PreparedStatement preparedStatement, int exp, int ed_status,
-                                             String position, String[] cities, int cityLen) throws SQLException{
+                                             String position, List<String> cities, int cityLen) throws SQLException{
         preparedStatement.setInt(1, exp);
         preparedStatement.setInt(2, exp);
         preparedStatement.setInt(3, ed_status);
         preparedStatement.setString(4, position);
         for (int i = 0; i < cityLen; i++) {
-            preparedStatement.setString(i+5, cities[i].trim());
+            preparedStatement.setString(i+5, cities.get(i).trim());
         }
     }
 
@@ -71,16 +71,16 @@ public class JobDataRepository {
     }
 
 
-    public boolean doesJobPositionExist(String position){
-        String sql = "SELECT position FROM CLUSTER_DATA WHERE position=? LIMIT 1";
-        boolean ret = false;
+    public List<String> getJobPositionStartingWith(String prefix){
+        String sql = "SELECT DISTINCT position FROM JOB_DATA WHERE position LIKE ?";
+        List<String> positions = new ArrayList<>();
         try{
             Connection conn = connectionPool.getConnection();
             try(PreparedStatement preparedStatement = conn.prepareStatement(sql)){
-                preparedStatement.setString(1, position);
+                preparedStatement.setString(1, prefix+"%");
                 ResultSet rs = preparedStatement.executeQuery();
-                if(rs.next()){
-                    ret = true;
+                while(rs.next()){
+                    positions.add(rs.getString(1));
                 }
                 rs.close();
             } finally {
@@ -92,32 +92,31 @@ public class JobDataRepository {
             System.err.println(e.getLocalizedMessage());
         }
 
-        return ret;
+        return positions;
     }
 
-    public List<Job> getPreMatchedJobAds(int exp, int ed_status, String position, String cities, boolean getText){
+    public List<Job> getPreMatchedJobAds(int exp, int ed_status, String position, List<String> cities, boolean getText){
         // Map is required since cities will
         Map<String, Job> retMap = new HashMap<>();
         String sql = SQL_QUERY;
-        String[] citiesSplit = cities.split(",");
         int cityLen = 0;
-        if (!(cities.startsWith("*") || "tüm türkiye".equalsIgnoreCase(cities))){
+        if (!(cities.get(0).startsWith("*") || cities.get(0).trim().equalsIgnoreCase("tüm türkiye"))){
             StringBuilder sb = new StringBuilder(sql).append(" AND (");
-            cityLen = citiesSplit.length;
-            for (int i = 0; i < cityLen; i++) {
+            for (int i = 0; i < cities.size(); i++) {
                 sb.append("CITIES.name=?");
-                if (i != cityLen-1){
+                if (i != cities.size()-1){
                     sb.append(" OR ");
                 }
             }
             sb.append(")");
             sql = sb.toString();
+            cityLen = cities.size();
         }
 
         try{
             Connection conn = connectionPool.getConnection();
             try(PreparedStatement preparedStatement = conn.prepareStatement(sql)){
-                prepareStatementForPreMatch(preparedStatement, exp, ed_status, position, citiesSplit, cityLen);
+                prepareStatementForPreMatch(preparedStatement, exp, ed_status, position, cities, cityLen);
                 ResultSet rs = preparedStatement.executeQuery();
                 while(rs.next()){
                     Job temp = getJobFromResult(rs, getText);

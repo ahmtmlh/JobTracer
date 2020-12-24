@@ -10,20 +10,20 @@ public class Matcher {
      * MatchingPriority for the matching process.
      *
      * <ul>
-     *     <li>NONE: Cluster matching will not be performed</li>
-     *     <li>ALL : Include ALL Jobs that has one ore more common cluster with given clustering information</li>
-     *     <li>HALF: Include Jobs that has at least HALF of the given clustering information</li>
-     *     <li>FULL: Include Jobs that has the same clusters with given clustering information</li>
-     *     <li>SPECIFIC: Include only Jobs that matches the exact clustering information
+     *     <li><b>NONE</b>: Cluster matching will not be performed</li>
+     *     <li><b>LOW</b>: Include Jobs that shares one or more cluster with given CV's cluster set</li>
+     *     <li><b>MEDIUM</b>: Include Jobs that has half (or more) clusters of given CV's cluster set </li>
+     *     <li><b>HIGH</b>: Include Jobs that has a cluster set, which is a superset of given CV's cluster set</li>
+     *     <li><b>HIGHEST</b>: Include only Jobs that has the same set of clusters as CV cluster set.
      *     <u>(This option will drastically decrease total number of matches)</u></li>
      * </ul>
      */
     public enum MatchingPriority {
         NONE,
-        ALL,
-        HALF,
-        FULL,
-        SPECIFIC
+        LOW,
+        MEDIUM,
+        HIGH,
+        HIGHEST
     }
 
     /**
@@ -33,14 +33,14 @@ public class Matcher {
      * @param preMatchedJobs A {@link List List} consists of Job information, which were pre matched by other CV information
      * @param cvClusters Clustering information of the CV
      * @param priority A {@link MatchingPriority MatchingPriority} that
-     *                 specifies the matching sensitivity <u>(passing null will default to ALL)</u>
+     *                 specifies the matching sensitivity <u>(passing null will default to LOW)</u>
      *
      * @return List of Job Ads that matches to the given clustering, with the given MatchPriority setting
      */
     public static List<Job> match(List<Job> preMatchedJobs, String cvClusters, MatchingPriority priority){
 
         if(priority == null){
-            priority = MatchingPriority.ALL;
+            priority = MatchingPriority.LOW;
         }
         // If priority is NONE, do not perform any matching
         if (priority == MatchingPriority.NONE){
@@ -55,18 +55,16 @@ public class Matcher {
             // If sets are identical, that job has the biggest priority
             if (jobAdClusterSet.equals(cvClustersSet)){
                 pq.add(new PriorityQueueItem(job, 0));
-            } else if(priority != MatchingPriority.SPECIFIC) {
-                // jobAdClusterSet will be corrupted after this point. It is also
-                // intersection set of the two.
+            } else if(priority != MatchingPriority.HIGHEST) {
                 int intersectionSize = getIntersectionSize(jobAdClusterSet, cvClustersSet);
                 // At this point, sets are not identical. Intersection size is checked
                 // if intersection set is not empty (intersectionSize > 0), add that job to queue
                 // with ordinal = cv.size - intersectionSize + 1;
                 if (intersectionSize > 0){
                     int ordinal = cvClustersSet.size() - intersectionSize + 1;
-                    if (priority == MatchingPriority.ALL ||
-                            (priority == MatchingPriority.HALF && intersectionSize >= jobAdClusterSet.size() / 2) ||
-                            (priority == MatchingPriority.FULL && intersectionSize == jobAdClusterSet.size()))
+                    if (priority == MatchingPriority.LOW ||
+                            (priority == MatchingPriority.MEDIUM && intersectionSize >= jobAdClusterSet.size() / 2) ||
+                            (priority == MatchingPriority.HIGH && intersectionSize == jobAdClusterSet.size()))
                         pq.add(new PriorityQueueItem(job, ordinal));
                 }
             }
@@ -92,8 +90,6 @@ public class Matcher {
         return set;
     }
 
-    // WARNING: THIS FUNCTIONS CHANGES CONTENTS OF SET1
-    // ALWAYS GIVE THE TEMP ELEMENT AS THE FIRST PARAMETER
     private static int getIntersectionSize(Set<Integer> set1, Set<Integer> set2){
         Set<Integer> temp = new HashSet<>(set1);
         temp.retainAll(set2);

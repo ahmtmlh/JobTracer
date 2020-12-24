@@ -11,11 +11,11 @@ public class CV {
 
     private String profession;
     private int educationStatus;
-    private String desiredCities;
+    private List<City> desiredCities;
     private int experience;
     private List<String> qualificationList;
 
-    public CV(String name, String surname, String profession, int educationStatus, String desiredCities, int experience, List<String> qualificationList) {
+    public CV(String name, String surname, String profession, int educationStatus, List<City> desiredCities, int experience, List<String> qualificationList) {
         this.name = name;
         this.surname = surname;
         this.profession = profession;
@@ -25,7 +25,7 @@ public class CV {
         this.qualificationList = qualificationList;
     }
 
-    public CV(String name, String surname, String profession, String educationStatus, String desiredCities, int experience, List<String> qualificationList) {
+    public CV(String name, String surname, String profession, String educationStatus, List<City> desiredCities, int experience, List<String> qualificationList) {
         this(name, surname, profession, educationStatusValues.get(educationStatus.toLowerCase()), desiredCities, experience, qualificationList);
     }
 
@@ -61,12 +61,8 @@ public class CV {
         this.educationStatus = educationStatus;
     }
 
-    public String getDesiredCities() {
+    public List<City> getDesiredCities() {
         return desiredCities;
-    }
-
-    public void setDesiredCities(String desiredCities) {
-        this.desiredCities = desiredCities;
     }
 
     public int getExperience() {

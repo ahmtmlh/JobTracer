@@ -9,9 +9,9 @@ import edu.deu.resumeie.service.model.Job;
 import edu.deu.resumeie.service.service.socket.Client;
 import edu.deu.resumeie.shared.SharedObjects;
 import edu.deu.resumeie.training.nlp.informationextraction.InformationExtractor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -22,7 +22,7 @@ public class ClusterMatchingService {
     private final InformationExtractor ie;
 
     //@Autowired
-    private JobDataRepository jobDataRepository;
+    private final JobDataRepository jobDataRepository;
 
     public ClusterMatchingService(){
         ie = new InformationExtractor(3);
@@ -43,8 +43,12 @@ public class ClusterMatchingService {
         AtomicReference<String> clustersReference = new AtomicReference<>();
         AtomicReference<List<Job>> preMatchedList = new AtomicReference<>();
 
-        Thread preMatcherThread = new Thread(() -> preMatchedList.set(jobDataRepository.getPreMatchedJobAds(
-                cv.getExperience(), cv.getEducationStatus(), cv.getProfession(), cv.getDesiredCities(), SharedObjects.serviceParams.getTextFields)));
+        Thread preMatcherThread = new Thread(() -> {
+            List<String> cities = new ArrayList<>();
+            cv.getDesiredCities().forEach(city -> cities.add(city.getCityName()));
+            preMatchedList.set(jobDataRepository.getPreMatchedJobAds(
+                    cv.getExperience(), cv.getEducationStatus(), cv.getProfession(), cities, SharedObjects.serviceParams.getTextFields));
+        });
 
         Thread clusterServiceThread = new Thread(() -> {
             // Information Extraction

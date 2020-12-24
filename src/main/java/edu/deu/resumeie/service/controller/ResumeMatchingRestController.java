@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 
 @RestController
@@ -15,6 +16,12 @@ public class ResumeMatchingRestController {
 	
 	@Autowired
 	private ResumeMatchingService resumeMatchingService;
+
+	@GetMapping("/positions/{prefix}")
+	public ResponseEntity<List<String>> getJobPositions(@PathVariable(name = "prefix") String prefix){
+		List<String> positions = resumeMatchingService.getJobPosition(prefix);
+		return positions.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(positions);
+	}
 
 	@PostMapping("/resumeInfo")
 	public ResponseEntity<?> getNew(@RequestBody @Valid CVDTO cv){
