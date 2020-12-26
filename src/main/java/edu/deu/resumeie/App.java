@@ -101,7 +101,7 @@ public class App {
 
     private static void serviceMain(String[] args) {
         // Test config
-        String name = "Ahmet";
+        /*String name = "Ahmet";
         String surname = "Veli";
         String profession = "Mimar";
         String educationStatus = "üniversite mezunu";
@@ -125,8 +125,8 @@ public class App {
             results.get().forEach(System.out::println);
         } else {
             System.err.println("Something Went Wrong");
-        }
+        }*/
 
-        //SpringApplication.run(WebApp.class, args);
+        SpringApplication.run(WebApp.class, args);
     }
 }
