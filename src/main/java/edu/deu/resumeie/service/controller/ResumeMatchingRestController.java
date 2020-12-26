@@ -32,10 +32,10 @@ public class ResumeMatchingRestController {
 
 	@PostMapping("/resumeInfo")
 	public ResponseEntity<?> getNew(@RequestBody @Valid CVDTO cv){
-
 		//  Convert CVDTO to CV
 		//Burada ozgecmis nesnesi oluşturulacak, city yerine ozgecmis parametre olarak gelecek.
 		System.out.println("check");
+		System.out.println(cv.toString());
 
 		return ResponseEntity.notFound().build();
 	}

@@ -7,8 +7,10 @@ public class City {
 
 	private String cityName;
 	private String zipCode;
-	
-	
+
+	public City() {
+	}
+
 	public City(String cityName, String zipCode) {
 		this.cityName = cityName;
 		this.zipCode = zipCode;

@@ -25,6 +25,7 @@ public class WebApp {
                 registry.addMapping("/rest/positions").allowedOrigins("http://localhost:4200");
                 registry.addMapping("/rest/driverlicencetypes").allowedOrigins("http://localhost:4200");
                 registry.addMapping("/rest/educationdegrees").allowedOrigins("http://localhost:4200");
+                registry.addMapping("/rest/resumeInfo").allowedOrigins("http://localhost:4200");
             }
             // TODO(OUZ) Research: How to handle CORS
         };
