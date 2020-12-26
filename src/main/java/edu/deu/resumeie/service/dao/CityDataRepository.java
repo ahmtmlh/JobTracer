@@ -8,8 +8,12 @@ import edu.deu.resumeie.shared.SharedObjects;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
+import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Repository
 public class CityDataRepository {
@@ -43,7 +47,9 @@ public class CityDataRepository {
             System.err.println(e.getLocalizedMessage());
         }
 
-        return list;
+        return list.stream()
+                .sorted(Comparator.comparing(City::getCityName, getTurkishLocaleCollator()))
+                .collect(Collectors.toList());
     }
 
     public List<City> getCitiesStartingWith(String prefix){
@@ -72,4 +78,7 @@ public class CityDataRepository {
         return list;
     }
 
+    private Collator getTurkishLocaleCollator() {
+        return Collator.getInstance(Locale.getDefault());
+    }
 }
