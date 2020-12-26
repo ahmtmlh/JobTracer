@@ -1,5 +1,8 @@
 package edu.deu.resumeie.service.controller;
 
+import edu.deu.resumeie.service.matcher.Matcher;
+import edu.deu.resumeie.service.model.CV;
+import edu.deu.resumeie.service.model.Job;
 import edu.deu.resumeie.service.model.dto.CVDTO;
 import edu.deu.resumeie.service.service.ResumeMatchingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,7 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @RestController
@@ -31,13 +36,12 @@ public class ResumeMatchingRestController {
 
 
 	@PostMapping("/resumeInfo")
-	public ResponseEntity<?> getNew(@RequestBody @Valid CVDTO cv){
-		//  Convert CVDTO to CV
-		//Burada ozgecmis nesnesi oluşturulacak, city yerine ozgecmis parametre olarak gelecek.
-		System.out.println("check");
-		System.out.println(cv.toString());
+	public ResponseEntity<List<Job>> getNew(@RequestBody @Valid CVDTO cv){
 
-		return ResponseEntity.notFound().build();
+		//  Convert CVDTO to CV
+		CV createdCV = cv.createCV();
+		Optional<List<Job>> jobList = resumeMatchingService.getMatchedJobs(createdCV, Matcher.MatchingPriority.MEDIUM);
+		return jobList.isPresent() ? ResponseEntity.ok(jobList.get()) : ResponseEntity.ok(new ArrayList<Job>());
 	}
 	
 }

@@ -25,6 +25,8 @@ public class CV {
         this.qualificationList = qualificationList;
     }
 
+
+
     public CV(String name, String surname, String profession, String educationStatus, List<City> desiredCities, int experience, List<String> qualificationList) {
         this(name, surname, profession, educationStatusValues.get(educationStatus.toLowerCase()), desiredCities, experience, qualificationList);
     }
