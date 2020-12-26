@@ -79,6 +79,6 @@ public class CityDataRepository {
     }
 
     private Collator getTurkishLocaleCollator() {
-        return Collator.getInstance(new Locale("tr", "TR"));
+        return Collator.getInstance(Locale.getDefault());
     }
 }
