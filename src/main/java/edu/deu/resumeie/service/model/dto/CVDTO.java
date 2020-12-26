@@ -96,7 +96,7 @@ public class CVDTO {
                 this.workExperiences.profession,
                 SharedObjects.educationStatusValues.get(this.educationInformation.degree),
                 this.contactInformation.getCity(),
-                2,
+                this.workExperiences.totalExperience,
                 createExperienceList());
 
 
