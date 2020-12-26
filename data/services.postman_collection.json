@@ -1,0 +1,195 @@
+{
+	"info": {
+		"_postman_id": "44d6ef2d-bc44-48aa-a80c-170534295c3d",
+		"name": "NlpCollections",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "GetUniversities",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/rest/universities",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"rest",
+						"universities"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetFaculties",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/rest/faculties?universityId=100",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"rest",
+						"faculties"
+					],
+					"query": [
+						{
+							"key": "universityId",
+							"value": "100"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetDepartments",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/rest/departments?universityId=100&facultyId=312",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"rest",
+						"departments"
+					],
+					"query": [
+						{
+							"key": "universityId",
+							"value": "100"
+						},
+						{
+							"key": "facultyId",
+							"value": "312"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetLanguages",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/rest/languages",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"rest",
+						"languages"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetDriverLicenceTypes",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/rest/driverlicencetypes",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"rest",
+						"driverlicencetypes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetCities",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/rest/cities",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"rest",
+						"cities"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetProfessions",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/rest/positions",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"rest",
+						"positions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ResumeInfo",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n   \"contactInformation\":{\n      \"emailAddress\":\"oguzkose11@gmail.com\",\n      \"dateOfBirth\":\"2002-12-02T22:00:00.000Z\",\n      \"city\":[\n         {\n            \"cityName\":\"Adıyaman\",\n            \"zipCode\":\"90\"\n         },\n         {\n            \"cityName\":\"Afyon\",\n            \"zipCode\":\"82\"\n         }\n      ]\n   },\n   \"personalInformation\":{\n      \"militaryServiceStatus\":null,\n      \"driverLicence\":null\n   },\n   \"educationInformation\":{\n      \"degree\":\"lise öğrencisi\",\n      \"graduationYear\":\"2023\",\n      \"university\":null,\n      \"faculty\":null,\n      \"department\":null\n   },\n   \"foreignLanguageInformation\":{\n      \"foreignLanguageInformation\":[\n         \n      ]\n   },\n   \"workExperiences\":{\n      \"profession\":\"Bilgisayar Mühendisi\",\n      \"experiences\":[\n         \"abc\",\n         \"drg\",\n         \"sdsa\"\n      ]\n   }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/rest/resumeInfo",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"rest",
+						"resumeInfo"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
