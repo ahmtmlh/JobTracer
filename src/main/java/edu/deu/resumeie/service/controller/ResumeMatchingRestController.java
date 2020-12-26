@@ -34,14 +34,12 @@ public class ResumeMatchingRestController {
 		return positions.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(positions);
 	}
 
-
 	@PostMapping("/resumeInfo")
 	public ResponseEntity<List<Job>> getNew(@RequestBody @Valid CVDTO cv){
 
 		//  Convert CVDTO to CV
 		CV createdCV = cv.createCV();
-		Optional<List<Job>> jobList = resumeMatchingService.getMatchedJobs(createdCV, Matcher.MatchingPriority.MEDIUM);
-		return jobList.isPresent() ? ResponseEntity.ok(jobList.get()) : ResponseEntity.ok(new ArrayList<Job>());
+		Optional<List<Job>> jobList = resumeMatchingService.getMatchedJobs(createdCV, Matcher.MatchingPriority.LOW);
+		return jobList.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.ok(new ArrayList<>()));
 	}
-	
 }

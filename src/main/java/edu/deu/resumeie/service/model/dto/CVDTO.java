@@ -11,13 +11,13 @@ public class CVDTO {
     @NotNull ContactInformationDTO contactInformation;
     @NotNull PersonalInformationDTO personalInformation;
     @NotNull EducationInformationDTO educationInformation;
-    @NotNull ForeignLanguageInformationDTO foreignLanguageInformation;
+    @NotNull List<ForeignLanguageInformationDTO> foreignLanguageInformation;
     @NotNull WorkExperienceDTO workExperiences;
 
     public CVDTO() {
     }
 
-    public CVDTO(ContactInformationDTO contactInformation, PersonalInformationDTO personalInformation, EducationInformationDTO educationInformation, ForeignLanguageInformationDTO foreignLanguageInformation, WorkExperienceDTO workExperiences) {
+    public CVDTO(ContactInformationDTO contactInformation, PersonalInformationDTO personalInformation, EducationInformationDTO educationInformation, List<ForeignLanguageInformationDTO> foreignLanguageInformation, WorkExperienceDTO workExperiences) {
         this.contactInformation = contactInformation;
         this.personalInformation = personalInformation;
         this.educationInformation = educationInformation;
@@ -49,11 +49,11 @@ public class CVDTO {
         this.educationInformation = educationInformation;
     }
 
-    public ForeignLanguageInformationDTO getForeignLanguageInformation() {
+    public List<ForeignLanguageInformationDTO> getForeignLanguageInformation() {
         return foreignLanguageInformation;
     }
 
-    public void setForeignLanguageInformation(ForeignLanguageInformationDTO foreignLanguageInformation) {
+    public void setForeignLanguageInformation(List<ForeignLanguageInformationDTO> foreignLanguageInformation) {
         this.foreignLanguageInformation = foreignLanguageInformation;
     }
 
@@ -108,11 +108,12 @@ public class CVDTO {
         List<String> list = this.getWorkExperiences().experiences;
 
         //add language information
-        list.add(getLanguageStatus(this.foreignLanguageInformation));
+        if (this.foreignLanguageInformation != null && !this.foreignLanguageInformation.isEmpty())
+            this.foreignLanguageInformation.forEach(language -> list.add(getLanguageStatus(language)));
 
         //add military information
-        if(this.getPersonalInformation().gender.getType() == 1 && !this.getMilitaryServiceStatus().equals(""))
-            list.add(getMilitaryServiceStatus());
+        if(this.getPersonalInformation().gender.getType() == 1 && this.personalInformation.getMilitaryServiceStatus().equalsIgnoreCase("Yaptım"))
+            list.add("Askerliğimi yaptım.");
 
         //add driving licence information
         list.addAll(driverLicences());
@@ -142,18 +143,6 @@ public class CVDTO {
         languageInfo = languageInfo + " " + language.getName() +" bilen.";
 
         return languageInfo;
-    }
-
-    private String getMilitaryServiceStatus(){
-
-        if(this.getMilitaryServiceStatus().equals("yaptım"))
-            return "Askerliğimi yaptım.";
-        if(this.getMilitaryServiceStatus().equals("yapmadım"))
-            return "Askerliğimi yapmadım.";
-        if(this.getMilitaryServiceStatus().equals("tecilli"))
-            return "Askerliğim tecillenmiştir.";
-
-        return "";
     }
 
     private List<String> driverLicences(){
