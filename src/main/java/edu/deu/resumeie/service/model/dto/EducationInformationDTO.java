@@ -1,12 +1,14 @@
 package edu.deu.resumeie.service.model.dto;
 
+import javax.validation.constraints.NotNull;
+
 public class EducationInformationDTO {
 
-    String degree;
-    String graduationYear;
-    UniversityDTO university;
-    FacultyDTO faculty;
-    DepartmentDTO department;
+    @NotNull private String degree;
+    @NotNull private String graduationYear;
+    private UniversityDTO university;
+    private FacultyDTO faculty;
+    private DepartmentDTO department;
 
     public EducationInformationDTO() {
     }

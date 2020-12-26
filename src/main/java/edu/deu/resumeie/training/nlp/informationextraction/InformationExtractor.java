@@ -18,13 +18,13 @@ import static edu.deu.resumeie.training.nlp.morphology.pattern.PatternType.*;
 
 public class InformationExtractor {
 
-	public static final String VERSION = "V1.3.1";
+	public static final String VERSION = "V1.3.2";
 
 	private static final int COMPLETE_LIST = 0x01;
 	private static final int SINGLE_LIST = 0x02;
 	private static final int MULTI_LIST = 0x04;
 
-	private static final String LIST_FILE = "match_list.conf";
+	private static final String LIST_FILE = ".data/match_list.conf";
 
 	private String saveFileName;
 	
@@ -152,15 +152,12 @@ public class InformationExtractor {
 		singleMatchList.add(new Pattern(NUM, NOUN, VERB));
 		singleMatchList.add(new Pattern(ADJ, NOUN, NOUN));
 		// MULTIPLE MATCH
-		//multipleMatchList.add(new Pattern(VERB, NOUN));
 		multipleMatchList.add(new Pattern(NOUN, NOUN, ADJ));
 		multipleMatchList.add(new Pattern(NOUN, NOUN, VERB));
 		multipleMatchList.add(new Pattern(ADJ, NOUN, VERB));
 		multipleMatchList.add(new Pattern(NOUN, VERB, ADJ));
 		multipleMatchList.add(new Pattern(ADJ, VERB, NOUN));
 		multipleMatchList.add(new Pattern(ADV, VERB, NOUN));
-		//multipleMatchList.add(new Pattern(ADJ, NOUN, VERB));
-		//multipleMatchList.add(new Pattern(NOUN, NOUN, NOUN));
 		multipleMatchList.add(new Pattern(ADJ, VERB, NOUN, NOUN));
 		multipleMatchList.add(new Pattern(NOUN, NOUN, NOUN, VERB));
 		multipleMatchList.add(new Pattern(VERB, VERB, NOUN, NOUN));
@@ -173,14 +170,7 @@ public class InformationExtractor {
 		multipleMatchList.add(new Pattern(NOUN, NOUN, NOUN, VERB, VERB));
 		multipleMatchList.add(new Pattern(NOUN, NOUN, NOUN, NOUN, VERB));
 		multipleMatchList.add(new Pattern(ADJ, VERB, NOUN, NOUN, VERB));
-		/*
-		multipleMatchList.add(new Pattern(NOUN, VERB, NOUN, NOUN, VERB));
-		multipleMatchList.add(new Pattern(ADJ, NOUN, NOUN, NOUN, VERB));
-		multipleMatchList.add(new Pattern(ADJ, NOUN, VERB, NOUN, VERB));
-		multipleMatchList.add(new Pattern(ADJ, NOUN, ADJ, VERB, VERB));
-		multipleMatchList.add(new Pattern(NOUN, ADJ, ADJ, NOUN, VERB));
-		multipleMatchList.add(new Pattern(ADJ, NOUN, NOUN, NOUN, NOUN, VERB));
-		*/
+
 	}
 
 	/**

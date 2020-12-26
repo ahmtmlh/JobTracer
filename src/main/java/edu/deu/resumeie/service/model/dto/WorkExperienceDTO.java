@@ -1,12 +1,13 @@
 package edu.deu.resumeie.service.model.dto;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class WorkExperienceDTO {
 
-    String profession;
-    List<String> experiences;
-    int totalExperience;
+    @NotNull private String profession;
+    @NotNull private List<String> experiences;
+    @NotNull private Integer totalExperience;
 
     public WorkExperienceDTO() {
     }

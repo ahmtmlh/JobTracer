@@ -8,14 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CVDTO {
-    @NotNull ContactInformationDTO contactInformation;
-    @NotNull PersonalInformationDTO personalInformation;
-    @NotNull EducationInformationDTO educationInformation;
-    @NotNull List<ForeignLanguageInformationDTO> foreignLanguageInformation;
-    @NotNull WorkExperienceDTO workExperiences;
 
-    public CVDTO() {
-    }
+    @NotNull private ContactInformationDTO contactInformation;
+    @NotNull private PersonalInformationDTO personalInformation;
+    @NotNull private EducationInformationDTO educationInformation;
+    @NotNull private List<ForeignLanguageInformationDTO> foreignLanguageInformation;
+    @NotNull private WorkExperienceDTO workExperiences;
+
+    public CVDTO() { }
 
     public CVDTO(ContactInformationDTO contactInformation, PersonalInformationDTO personalInformation, EducationInformationDTO educationInformation, List<ForeignLanguageInformationDTO> foreignLanguageInformation, WorkExperienceDTO workExperiences) {
         this.contactInformation = contactInformation;
@@ -76,47 +76,37 @@ public class CVDTO {
                 '}';
     }
 
-
-    ////Transfer
-
     public CV createCV(){
-
-        //CV cv = new CV(asd);
-
-//        private String name;
-//        private String surname;
-//
-//        private String profession;
-//        private int educationStatus;
-//        private final List<City> desiredCities;
-//        private int experience;
-//        private List<String> qualificationList;
-        CV cv = new CV("Ali Ata",
+        return new CV("Ali Ata",
                 "Bak",
-                this.workExperiences.profession,
-                SharedObjects.educationStatusValues.get(this.educationInformation.degree),
+                this.workExperiences.getProfession(),
+                this.educationInformation.getDegree(),
                 this.contactInformation.getCity(),
-                this.workExperiences.totalExperience,
+                this.workExperiences.getTotalExperience(),
                 createExperienceList());
-
-
-        return cv;
     }
 
     private List<String> createExperienceList(){
-        //default list
-        List<String> list = this.getWorkExperiences().experiences;
+        // Default list
+        List<String> list = new ArrayList<>(this.getWorkExperiences().getExperiences());
 
-        //add language information
+        // Add language information
         if (this.foreignLanguageInformation != null && !this.foreignLanguageInformation.isEmpty())
             this.foreignLanguageInformation.forEach(language -> list.add(getLanguageStatus(language)));
 
-        //add military information
-        if(this.getPersonalInformation().gender.getType() == 1 && this.personalInformation.getMilitaryServiceStatus().equalsIgnoreCase("Yaptım"))
-            list.add("Askerliğimi yaptım.");
+        // Add military information
+        if(this.getPersonalInformation().gender.getType() == 1 &&
+                this.personalInformation.getMilitaryServiceStatus().equalsIgnoreCase("yaptım"))
+            list.add("Askerlik görevimi tamamladım.");
 
-        //add driving licence information
-        list.addAll(driverLicences());
+        // Add driving licence information
+        if (getPersonalInformation().driverLicence != null)
+            list.addAll(driverLicences());
+
+        // Add education information
+        String temp = getEducationStatus(this.educationInformation);
+        if (!temp.isEmpty())
+            list.add(temp);
 
         return list;
     }
@@ -143,6 +133,22 @@ public class CVDTO {
         languageInfo = languageInfo + " " + language.getName() +" bilen.";
 
         return languageInfo;
+    }
+
+    private String getEducationStatus(EducationInformationDTO educationInformation){
+        int status = SharedObjects.educationStatusValues.get(educationInformation.getDegree().toLowerCase());
+        if (status > 3){
+            // Even numbers means currently studying
+            if (status < 8 && status % 2 == 0){
+                return String.format("%s %s öğrencisiyim.",
+                        educationInformation.getUniversity().getName(), educationInformation.getDepartment().getName());
+            }
+            else {
+                return String.format("%s %s mezunuyum.",
+                        educationInformation.getUniversity().getName(), educationInformation.getDepartment().getName());
+            }
+        }
+        return "";
     }
 
     private List<String> driverLicences(){

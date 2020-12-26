@@ -1,10 +1,11 @@
 package edu.deu.resumeie.service.model.dto;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class PersonalInformationDTO {
 
-    GenderModel gender;
+    @NotNull GenderModel gender;
     String militaryServiceStatus;
     String nationality;
     List<String> driverLicence;

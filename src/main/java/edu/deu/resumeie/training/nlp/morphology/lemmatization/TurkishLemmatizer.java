@@ -48,11 +48,13 @@ public class TurkishLemmatizer implements Lemmatizer {
 			edgeCaseWords.put("karar", PatternType.NOUN);
 			edgeCaseWords.put("olan", PatternType.VERB);
 			edgeCaseWords.put("olmayan", PatternType.VERB);
+			edgeCaseWords.put("sürücü", PatternType.NOUN);
+			edgeCaseWords.put("seviye", PatternType.ADJ);
 		}
 	}
 
 	private void initEdgeCaseWordsFromFile(String filename){
-		try(BufferedReader br = new BufferedReader(new FileReader(new File(filename)))){
+		try(BufferedReader br = new BufferedReader(new FileReader(filename))){
 			String line;
 			while((line = br.readLine()) != null){
 				int commaIndex = line.indexOf(',');

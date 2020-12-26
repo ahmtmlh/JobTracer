@@ -2,12 +2,14 @@ package edu.deu.resumeie.service.model.dto;
 
 import edu.deu.resumeie.service.model.City;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class ContactInformationDTO {
 
     String emailAddress;
     String dateOfBirth;
+    @NotNull
     List<City> city;
 
     public ContactInformationDTO() {

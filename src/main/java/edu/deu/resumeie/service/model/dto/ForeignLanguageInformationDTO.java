@@ -2,12 +2,11 @@ package edu.deu.resumeie.service.model.dto;
 
 public class ForeignLanguageInformationDTO {
 
-    int id;
-    String name;
-    LanguageLevelDTO level;
+    private int id;
+    private String name;
+    private LanguageLevelDTO level;
 
-    public ForeignLanguageInformationDTO() {
-    }
+    public ForeignLanguageInformationDTO() { }
 
     public ForeignLanguageInformationDTO(int id, String name, LanguageLevelDTO level) {
         this.id = id;
