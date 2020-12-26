@@ -12,7 +12,6 @@ import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Repository
@@ -48,7 +47,7 @@ public class CityDataRepository {
         }
 
         return list.stream()
-                .sorted(Comparator.comparing(City::getCityName, getTurkishLocaleCollator()))
+                .sorted(Comparator.comparing(City::getCityName, Collator.getInstance()))
                 .collect(Collectors.toList());
     }
 
@@ -78,7 +77,4 @@ public class CityDataRepository {
         return list;
     }
 
-    private Collator getTurkishLocaleCollator() {
-        return Collator.getInstance(Locale.getDefault());
-    }
 }

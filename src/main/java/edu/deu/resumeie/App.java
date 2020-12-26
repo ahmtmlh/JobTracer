@@ -26,7 +26,6 @@ public class App {
         Options options = new Options();
 
         Option temp = new Option("m", "mode", true, "Work Mode");
-        temp.setRequired(true);
         options.addOption(temp);
 
         temp = new Option("l", "locale", true, "Locale");
@@ -46,6 +45,13 @@ public class App {
 
         try {
             cmd = parser.parse(options, args);
+            if (cmd.hasOption("v")){
+                System.out.println("Version: " + SharedObjects.VERSION);
+                return;
+            }
+            if (!cmd.hasOption("m")){
+                throw new ParseException("Missing required option: m");
+            }
 			if (!(cmd.getOptionValue("m").equalsIgnoreCase("service") || cmd.getOptionValue("m").equalsIgnoreCase("train"))) {
 				throw new IllegalArgumentException(String.format("Unknown Work Mode '%s'. Work Mode must be 'service' or 'train'", cmd.getOptionValue("m")));
 			}
@@ -55,7 +61,7 @@ public class App {
                     throw new IllegalArgumentException("--vectorizer must be 'tfidf' or 'count'");
                 }
                 if (cmd.hasOption("t") && !(cmd.getOptionValue("t").equals("0") || cmd.getOptionValue("t").equals("1"))){
-                    throw new IllegalArgumentException("--text Value must be either '0' or '1'");
+                    throw new IllegalArgumentException("--text value must be either '0' or '1'");
                 }
             }
 
@@ -65,26 +71,22 @@ public class App {
             return;
         }
 
-        if (cmd.hasOption("v")) {
-            System.out.println("Version: " + SharedObjects.VERSION);
+        // Set Flags
+        if (cmd.hasOption("l")) {
+            Locale.setDefault(Locale.forLanguageTag(cmd.getOptionValue("l")));
+        }
+
+        if (cmd.getOptionValue("m").equalsIgnoreCase("service")) {
+            if (cmd.hasOption("t")) {
+                SharedObjects.serviceParams.getTextFields = Integer.parseInt(cmd.getOptionValue("t")) == 1;
+            }
+
+            if (cmd.hasOption("cv")) {
+                SharedObjects.serviceParams.vectorizer = cmd.getOptionValue("cv");
+            }
+            serviceMain(args);
         } else {
-            // Set Flags
-            if (cmd.hasOption("l")) {
-                Locale.setDefault(Locale.forLanguageTag(cmd.getOptionValue("l")));
-            }
-
-            if (cmd.getOptionValue("m").equalsIgnoreCase("service")) {
-                if (cmd.hasOption("t")) {
-                    SharedObjects.serviceParams.getTextFields = Integer.parseInt(cmd.getOptionValue("t")) == 1;
-                }
-
-                if (cmd.hasOption("cv")) {
-                    SharedObjects.serviceParams.vectorizer = cmd.getOptionValue("cv");
-                }
-                serviceMain(args);
-            } else {
-                trainingMain();
-            }
+            trainingMain();
         }
     }
 
