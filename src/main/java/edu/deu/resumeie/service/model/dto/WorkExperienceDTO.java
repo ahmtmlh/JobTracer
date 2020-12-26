@@ -6,13 +6,15 @@ public class WorkExperienceDTO {
 
     String profession;
     List<String> experiences;
+    int totalExperience;
 
     public WorkExperienceDTO() {
     }
 
-    public WorkExperienceDTO(String profession, List<String> experiences) {
+    public WorkExperienceDTO(String profession, List<String> experiences, int totalExperience) {
         this.profession = profession;
         this.experiences = experiences;
+        this.totalExperience = totalExperience;
     }
 
     public String getProfession() {
@@ -29,6 +31,14 @@ public class WorkExperienceDTO {
 
     public void setExperiences(List<String> experiences) {
         this.experiences = experiences;
+    }
+
+    public int getTotalExperience() {
+        return totalExperience;
+    }
+
+    public void setTotalExperience(int totalExperience) {
+        this.totalExperience = totalExperience;
     }
 
     @Override
