@@ -9,9 +9,6 @@ import java.util.*;
 
 public class ClusterServiceMessage implements JsonMessage{
 
-    // Arrays
-    private final Map<String, List<String>> arrays;
-
     //Json part
     private final JSONObject root;
 
@@ -23,7 +20,6 @@ public class ClusterServiceMessage implements JsonMessage{
         changed = false;
         stringForm = "";
         root = new JSONObject();
-        arrays = new HashMap<>();
     }
 
     public void addItem(String key, Object item){
