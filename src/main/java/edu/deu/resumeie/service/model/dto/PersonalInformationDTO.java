@@ -7,16 +7,14 @@ public class PersonalInformationDTO {
 
     @NotNull GenderModel gender;
     String militaryServiceStatus;
-    String nationality;
     List<String> driverLicence;
 
     public PersonalInformationDTO() {
     }
 
-    public PersonalInformationDTO(GenderModel gender, String militaryServiceStatus, String nationality, List<String> driverLicence) {
+    public PersonalInformationDTO(GenderModel gender, String militaryServiceStatus, List<String> driverLicence) {
         this.gender = gender;
         this.militaryServiceStatus = militaryServiceStatus;
-        this.nationality = nationality;
         this.driverLicence = driverLicence;
     }
 
@@ -36,14 +34,6 @@ public class PersonalInformationDTO {
         this.militaryServiceStatus = militaryServiceStatus;
     }
 
-    public String getNationality() {
-        return nationality;
-    }
-
-    public void setNationality(String nationality) {
-        this.nationality = nationality;
-    }
-
     public List<String> getDriverLicence() {
         return driverLicence;
     }
@@ -57,7 +47,6 @@ public class PersonalInformationDTO {
         return "PersonalInformationDTO{" +
                 "gender=" + gender +
                 ", militaryServiceStatus='" + militaryServiceStatus + '\'' +
-                ", nationality='" + nationality + '\'' +
                 ", driverLicence=" + driverLicence +
                 '}';
     }
