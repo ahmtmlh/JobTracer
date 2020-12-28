@@ -5,8 +5,8 @@ import java.util.*;
 
 public class Dispatcher {
 
-    private static final int TOTAL_ID = 10000;
-    private static final long TIMER_TIME = 20 * 60 * 1000; // 20 minutes
+    private static final int MAX_DISPATCH = 10000;
+    private static final long ALIVE_TIMEOUT = 3 * 60 * 1000; // 3 minutes
 
     private final List<Integer> allIds;
     private final Random random;
@@ -16,7 +16,7 @@ public class Dispatcher {
 
     public <T extends Map<Integer, ?>> Dispatcher(T reference){
         allIds = new ArrayList<>();
-        for (int i = 0; i <= TOTAL_ID; i++){
+        for (int i = 0; i <= MAX_DISPATCH; i++){
             allIds.add(i);
         }
         random = new Random();
@@ -40,7 +40,7 @@ public class Dispatcher {
                 System.out.printf("Result %d has been deleted due to timeout%n", id);
             }
         };
-        new Timer().schedule(task, TIMER_TIME);
+        new Timer().schedule(task, ALIVE_TIMEOUT);
         tasks.put(id, task);
     }
 

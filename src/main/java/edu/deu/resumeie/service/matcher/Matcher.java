@@ -12,8 +12,8 @@ public class Matcher {
      * <ul>
      *     <li><b>NONE</b>: Cluster matching will not be performed</li>
      *     <li><b>LOW</b>: Include Jobs that shares one or more cluster with given CV's cluster set</li>
-     *     <li><b>MEDIUM</b>: Include Jobs that has half (or more) clusters of given CV's cluster set </li>
-     *     <li><b>HIGH</b>: Include Jobs that has a cluster set, which is a superset of given CV's cluster set</li>
+     *     <li><b>MEDIUM</b>: Include Jobs that has %40 (or more) clusters of given CV's cluster set.</li>
+     *     <li><b>HIGH</b>: Include Jobs that has %75 (or more) clusters of given CV's cluster set.</li>
      *     <li><b>HIGHEST</b>: Include only Jobs that has the same set of clusters as CV cluster set.
      *     <u>(This option will drastically decrease total number of matches)</u></li>
      * </ul>
@@ -56,15 +56,17 @@ public class Matcher {
             if (jobAdClusterSet.equals(cvClustersSet)){
                 pq.add(new PriorityQueueItem(job, 0));
             } else if(priority != MatchingPriority.HIGHEST) {
-                int intersectionSize = getIntersectionSize(jobAdClusterSet, cvClustersSet);
+                double intersectionSize = getIntersectionSize(jobAdClusterSet, cvClustersSet);
                 // At this point, sets are not identical. Intersection size is checked
                 // if intersection set is not empty (intersectionSize > 0), add that job to queue
                 // with ordinal = cv.size - intersectionSize + 1;
                 if (intersectionSize > 0){
-                    int ordinal = cvClustersSet.size() - intersectionSize + 1;
+                    int ordinal = cvClustersSet.size() - (int)intersectionSize + 1;
+                    // This correction is done to populate low-information requests.
+                    if (cvClustersSet.size() < 6) intersectionSize += 0.25;
                     if (priority == MatchingPriority.LOW ||
-                            (priority == MatchingPriority.MEDIUM && intersectionSize >= jobAdClusterSet.size() / 2) ||
-                            (priority == MatchingPriority.HIGH && intersectionSize == jobAdClusterSet.size()))
+                            (priority == MatchingPriority.MEDIUM && intersectionSize >= (double) cvClustersSet.size() * 2.0 / 5.0) ||
+                            (priority == MatchingPriority.HIGH && intersectionSize >= (double) cvClustersSet.size() * 3.0 / 4.0))
                         pq.add(new PriorityQueueItem(job, ordinal));
                 }
             }

@@ -18,14 +18,32 @@ public class BasicConnectionPool implements ConnectionPool{
     private String url;
     private boolean closed;
 
-
+    /**
+     * This function requires the URL to contain all information like username and password
+     * If JDBC driver for the certain SQL Engine doesn't support username and password
+     * int JDBC URL, {@link edu.deu.resumeie.service.connectionpool.BasicConnectionPool#createInstanceForUser}
+     * function first to create an single instance, then use this function to retrieve it.
+     *
+     * @see edu.deu.resumeie.service.connectionpool.BasicConnectionPool#createInstanceForUser
+     * @param url JDBC Connection URL for SQL Engine
+     * @return A connection pool that is static and shared among other threads
+     */
     public static ConnectionPool getInstanceForUrl(String url){
         if (!pools.containsKey(url)){
-            pools.put(url, new BasicConnectionPool(url));
+            createInstance(url);
         }
         return pools.get(url);
     }
 
+    public static void createInstance(String url){
+        ConnectionPool pool = new BasicConnectionPool(url);
+        pools.put(url, pool);
+    }
+
+    public static void createInstanceForUser(String url, String username, String password){
+        ConnectionPool pool = new BasicConnectionPool(url, username, password);
+        pools.put(url, pool);
+    }
 
     private BasicConnectionPool(String url){
         this(url, "", "");
@@ -36,10 +54,10 @@ public class BasicConnectionPool implements ConnectionPool{
         closed = false;
         availableConnections = new ArrayList<>();
         usedConnections = new ArrayList<>();
-        if ((username == null || username.isEmpty()) || (password == null || password.isEmpty())){
+        if ((username == null || username.isEmpty())){
             initWithoutUser();
         } else {
-            initWithUser(username, password);
+            initWithUser(username, password == null ? "" : password);
         }
     }
 
@@ -118,6 +136,15 @@ public class BasicConnectionPool implements ConnectionPool{
             c.close();
         }
         closed = true;
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        try{
+            this.close();
+        } finally {
+            super.finalize();
+        }
     }
 
     private Connection createConnection(String connUrl, String username, String password) throws SQLException {
