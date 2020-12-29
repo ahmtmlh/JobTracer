@@ -14,6 +14,7 @@ public class CVDTO {
     @NotNull private EducationInformationDTO educationInformation;
     @NotNull private List<ForeignLanguageInformationDTO> foreignLanguageInformation;
     @NotNull private WorkExperienceDTO workExperiences;
+    private String matchingPriority;
 
     public CVDTO() { }
 
@@ -63,6 +64,14 @@ public class CVDTO {
 
     public void setWorkExperiences(WorkExperienceDTO workExperiences) {
         this.workExperiences = workExperiences;
+    }
+
+    public String getMatchingPriority() {
+        return matchingPriority;
+    }
+
+    public void setMatchingPriority(String matchingPriority) {
+        this.matchingPriority = matchingPriority;
     }
 
     @Override

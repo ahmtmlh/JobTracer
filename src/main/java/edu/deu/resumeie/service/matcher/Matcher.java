@@ -12,7 +12,7 @@ public class Matcher {
      * <ul>
      *     <li><b>NONE</b>: Cluster matching will not be performed</li>
      *     <li><b>LOW</b>: Include Jobs that shares one or more cluster with given CV's cluster set</li>
-     *     <li><b>MEDIUM</b>: Include Jobs that has %40 (or more) clusters of given CV's cluster set.</li>
+     *     <li><b>MEDIUM</b>: Include Jobs that has %50 (or more) clusters of given CV's cluster set.</li>
      *     <li><b>HIGH</b>: Include Jobs that has %75 (or more) clusters of given CV's cluster set.</li>
      *     <li><b>HIGHEST</b>: Include only Jobs that has the same set of clusters as CV cluster set.
      *     <u>(This option will drastically decrease total number of matches)</u></li>
@@ -48,25 +48,25 @@ public class Matcher {
         }
 
         PriorityQueue<PriorityQueueItem> pq = new PriorityQueue<>();
-        Set<Integer> cvClustersSet = createClusterSet(cvClusters);
+        List<Integer> cvClustersList = createClusterList(cvClusters);
 
         for(Job job : preMatchedJobs){
-            Set<Integer> jobAdClusterSet = createClusterSet(job.getClusters());
+            List<Integer> jobAdClusterList = createClusterList(job.getClusters());
             // If sets are identical, that job has the biggest priority
-            if (jobAdClusterSet.equals(cvClustersSet)){
+            if (jobAdClusterList.equals(cvClustersList)){
                 pq.add(new PriorityQueueItem(job, 0));
             } else if(priority != MatchingPriority.HIGHEST) {
-                double intersectionSize = getIntersectionSize(jobAdClusterSet, cvClustersSet);
+                double intersectionSize = getIntersectionSize(new ArrayList<>(jobAdClusterList), cvClustersList);
                 // At this point, sets are not identical. Intersection size is checked
                 // if intersection set is not empty (intersectionSize > 0), add that job to queue
                 // with ordinal = cv.size - intersectionSize + 1;
                 if (intersectionSize > 0){
-                    int ordinal = cvClustersSet.size() - (int)intersectionSize + 1;
+                    int ordinal = cvClustersList.size() - (int)intersectionSize + 1;
                     // This correction is done to populate low-information requests.
-                    if (cvClustersSet.size() < 6) intersectionSize += 0.25;
+                    if (cvClustersList.size() < 6) intersectionSize += 0.25;
                     if (priority == MatchingPriority.LOW ||
-                            (priority == MatchingPriority.MEDIUM && intersectionSize >= (double) cvClustersSet.size() * 2.0 / 5.0) ||
-                            (priority == MatchingPriority.HIGH && intersectionSize >= (double) cvClustersSet.size() * 3.0 / 4.0))
+                            (priority == MatchingPriority.MEDIUM && intersectionSize >= cvClustersList.size() / 2.0) ||
+                            (priority == MatchingPriority.HIGH && intersectionSize >= (double) cvClustersList.size() * 3.0 / 4.0))
                         pq.add(new PriorityQueueItem(job, ordinal));
                 }
             }
@@ -75,6 +75,18 @@ public class Matcher {
         List<Job> returnList = new ArrayList<>();
         pq.forEach(item -> returnList.add(item.getJob()));
         return returnList;
+    }
+
+    private static List<Integer> createClusterList(String clusters){
+        String[] clusterArr = clusters.split(",");
+        List<Integer> list = new ArrayList<>();
+        for(String cluster : clusterArr){
+            try{
+                Integer clusterAsInt = Integer.parseInt(cluster.trim());
+                list.add(clusterAsInt);
+            } catch (NumberFormatException ignore){ }
+        }
+        return list;
     }
 
 
@@ -92,10 +104,9 @@ public class Matcher {
         return set;
     }
 
-    private static int getIntersectionSize(Set<Integer> set1, Set<Integer> set2){
-        Set<Integer> temp = new HashSet<>(set1);
-        temp.retainAll(set2);
-        return temp.size();
+    private static int getIntersectionSize(Collection<Integer> c1, Collection<Integer> c2){
+        c1.retainAll(c2);
+        return c1.size();
     }
 
 
