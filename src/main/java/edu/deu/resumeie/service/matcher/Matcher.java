@@ -52,6 +52,9 @@ public class Matcher {
 
         for(Job job : preMatchedJobs){
             List<Integer> jobAdClusterList = createClusterList(job.getClusters());
+            // This is done to eliminate outliers
+            if (uniqueClusterCount(jobAdClusterList) <= 2)
+                continue;
             // If sets are identical, that job has the biggest priority
             if (jobAdClusterList.equals(cvClustersList)){
                 pq.add(new PriorityQueueItem(job, 0));
@@ -65,7 +68,7 @@ public class Matcher {
                     // This correction is done to populate low-information requests.
                     if (cvClustersList.size() < 6) intersectionSize += 0.25;
                     if (priority == MatchingPriority.LOW ||
-                            (priority == MatchingPriority.MEDIUM && intersectionSize >= cvClustersList.size() / 2.0) ||
+                            (priority == MatchingPriority.MEDIUM && intersectionSize >= cvClustersList.size() * 2.0 / 5.0) ||
                             (priority == MatchingPriority.HIGH && intersectionSize >= (double) cvClustersList.size() * 3.0 / 4.0))
                         pq.add(new PriorityQueueItem(job, ordinal));
                 }
@@ -102,6 +105,10 @@ public class Matcher {
             }
         }
         return set;
+    }
+
+    private static int uniqueClusterCount(List<Integer> clusterList){
+        return new HashSet<>(clusterList).size();
     }
 
     private static int getIntersectionSize(Collection<Integer> c1, Collection<Integer> c2){

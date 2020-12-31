@@ -76,6 +76,7 @@ def create_tables(mysqlDb):
 
 def create_indexes(mysqlDb):
     c = mysqlDb.cursor()
+    print("Creating indexes...")
     
     exec_mysql(c, "CREATE INDEX job_exp_index ON JOB_DATA(exp)")
     exec_mysql(c, "CREATE INDEX job_max_exp_index ON JOB_DATA(max_exp)")
@@ -90,6 +91,8 @@ def create_indexes(mysqlDb):
 
     mysqlDb.commit()
     c.close()
+    
+    print("Index creation completed")
     
 
 
