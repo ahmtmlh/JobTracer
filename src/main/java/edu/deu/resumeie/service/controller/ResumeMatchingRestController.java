@@ -50,7 +50,8 @@ public class ResumeMatchingRestController {
 
 		//  Convert CVDTO to CV
 		CV createdCV = cv.createCV();
-		Optional<List<Job>> jobList = resumeMatchingService.getMatchedJobs(createdCV, Matcher.MatchingPriority.LOW);
+		Optional<List<Job>> jobList = resumeMatchingService.getMatchedJobs(createdCV,
+				cv.getMatchingPriority() == null ? Matcher.MatchingPriority.MEDIUM : Matcher.MatchingPriority.valueOf(cv.getMatchingPriority().toUpperCase()));
 
 		if (jobList.isPresent() && !jobList.get().isEmpty()){
 			int listId = dispatcher.getId();

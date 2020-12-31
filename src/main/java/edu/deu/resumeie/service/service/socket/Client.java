@@ -46,15 +46,10 @@ public class Client {
         } catch(IOException ignore){ /*Ignore the exception*/ }
     }
 
-    public void sendMessage(String msg){
-        try{
-            lastSendMessageLength = msg.getBytes().length;
-            clientSocket.getOutputStream().write(msg.getBytes(), 0, msg.getBytes().length);
-            clientSocket.getOutputStream().flush();
-        } catch (IOException e){
-            e.printStackTrace();
-            tcpConnectionError = true;
-        }
+    public void sendMessage(String msg) throws IOException{
+        lastSendMessageLength = msg.getBytes().length;
+        clientSocket.getOutputStream().write(msg.getBytes(), 0, msg.getBytes().length);
+        clientSocket.getOutputStream().flush();
     }
 
     public String receiveMessage(){
@@ -85,7 +80,7 @@ public class Client {
      * @param msg   Message to be send
      * @return      Message received from the server. Empty String if no message is received.
      */
-    public String sendAndReceive(String msg){
+    public String sendAndReceive(String msg) throws IOException{
         this.sendMessage(msg);
         return this.receiveMessage();
     }

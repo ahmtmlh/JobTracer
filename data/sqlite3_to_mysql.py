@@ -25,10 +25,6 @@ def create_tables(mysqlDb):
             "ed_status INT(11) NOT NULL,"+
             "text TEXT NOT NULL,"+
             "text_clear TEXT NOT NULL)" )
-    exec_mysql(c, "CREATE INDEX job_exp_index ON JOB_DATA(exp)")
-    exec_mysql(c, "CREATE INDEX job_max_exp_index ON JOB_DATA(max_exp)")
-    exec_mysql(c, "CREATE INDEX job_pos_index ON JOB_DATA(position)")
-    exec_mysql(c, "CREATE INDEX job_ed_stat_index ON JOB_DATA(ed_status)")
     exec_mysql(c, "CREATE TABLE CLUSTER_DATA(" +
             "id INT(11) PRIMARY KEY AUTO_INCREMENT," +
             "job_id INT(11) NOT NULL UNIQUE," +
@@ -36,12 +32,10 @@ def create_tables(mysqlDb):
             "clusters_cnt nvarchar(1024) NOT NULL," +
             "FOREIGN KEY(job_id) REFERENCES JOB_DATA(id)" +
             ")")
-    exec_mysql(c, "CREATE INDEX cl_job_id_index ON CLUSTER_DATA(job_id)")
     exec_mysql(c, "CREATE TABLE CITIES("+
                   "id INT(11) PRIMARY KEY,"+
                   "name nvarchar(255) NOT NULL"+
                   ")")
-    exec_mysql(c, "CREATE INDEX city_name_index ON CITIES(name)")
     exec_mysql(c, "CREATE TABLE JOB_CITIES("+
             "id INT(11) PRIMARY KEY AUTO_INCREMENT,"+
             "job_id INT(11) NOT NULL,"+
@@ -49,9 +43,6 @@ def create_tables(mysqlDb):
             "FOREIGN KEY(job_id) REFERENCES JOB_DATA(id),"+
             "FOREIGN KEY(city_id) REFERENCES CITIES(id)"+
         ")")
-    exec_mysql(c, "CREATE INDEX jc_job_id_index ON JOB_CITIES(job_id)")
-    exec_mysql(c, "CREATE INDEX jc_city_id_index ON JOB_CITIES(city_id)")
-    
     exec_mysql(c, "CREATE TABLE UNIVERSITIES("+
             "id INT(11) PRIMARY KEY,"+
             "name nvarchar(255) NOT NULL"+
@@ -62,16 +53,14 @@ def create_tables(mysqlDb):
             "name nvarchar(255) NOT NULL,"+
             "FOREIGN KEY(uni_id) REFERENCES UNIVERSITIES(id)"+
         ")")
-    exec_mysql(c, "CREATE INDEX fac_uni_id_index ON FACULTIES(uni_id)")
-    
+
     exec_mysql(c, "CREATE TABLE DEPARTMENTS("+
             "id INT(11) PRIMARY KEY,"+
             "fac_id INT(11) NOT NULL,"+
             "name nvarchar(255) NOT NULL,"+
             "FOREIGN KEY(fac_id) REFERENCES FACULTIES(id)"+
         ")")
-    exec_mysql(c, "CREATE INDEX dep_fac_id_index ON DEPARTMENTS(fac_id)")
-    
+
     exec_mysql(c, "CREATE TABLE LANGUAGES("+
             "id INT(11) PRIMARY KEY,"+
             "name nvarchar(255) NOT NULL"+
@@ -84,6 +73,27 @@ def create_tables(mysqlDb):
     
     mysqlDb.commit()
     c.close()
+
+def create_indexes(mysqlDb):
+    c = mysqlDb.cursor()
+    print("Creating indexes...")
+    
+    exec_mysql(c, "CREATE INDEX job_exp_index ON JOB_DATA(exp)")
+    exec_mysql(c, "CREATE INDEX job_max_exp_index ON JOB_DATA(max_exp)")
+    exec_mysql(c, "CREATE INDEX job_pos_index ON JOB_DATA(position)")
+    exec_mysql(c, "CREATE INDEX job_ed_stat_index ON JOB_DATA(ed_status)")
+    exec_mysql(c, "CREATE INDEX cl_job_id_index ON CLUSTER_DATA(job_id)")    
+    exec_mysql(c, "CREATE INDEX city_name_index ON CITIES(name)")
+    exec_mysql(c, "CREATE INDEX jc_job_id_index ON JOB_CITIES(job_id)")
+    exec_mysql(c, "CREATE INDEX jc_city_id_index ON JOB_CITIES(city_id)")
+    exec_mysql(c, "CREATE INDEX fac_uni_id_index ON FACULTIES(uni_id)")
+    exec_mysql(c, "CREATE INDEX dep_fac_id_index ON DEPARTMENTS(fac_id)")
+
+    mysqlDb.commit()
+    c.close()
+    
+    print("Index creation completed")
+    
 
 
 def populate_tables(sqliteDbFile, mysqlDb):
@@ -218,5 +228,6 @@ if __name__ == '__main__':
     
     create_tables(mysqlDb)
     populate_tables(sqlite_file_name, mysqlDb)
+    create_indexes(mysqlDb)
     mysqlDb.close()
     print("End")

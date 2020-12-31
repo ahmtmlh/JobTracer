@@ -46,42 +46,43 @@ public class ForeignLanguageInformationDTO {
                 ", level=" + level +
                 '}';
     }
-}
 
-class LanguageLevelDTO {
 
-    String levelName;
-    int levelType;
+    public static class LanguageLevelDTO {
 
-    public LanguageLevelDTO() {
-    }
+        String levelName;
+        int levelType;
 
-    public LanguageLevelDTO(String levelName, int levelType) {
-        this.levelName = levelName;
-        this.levelType = levelType;
-    }
+        public LanguageLevelDTO() {
+        }
 
-    public String getLevelName() {
-        return levelName;
-    }
+        public LanguageLevelDTO(String levelName, int levelType) {
+            this.levelName = levelName;
+            this.levelType = levelType;
+        }
 
-    public void setLevelName(String levelName) {
-        this.levelName = levelName;
-    }
+        public String getLevelName() {
+            return levelName;
+        }
 
-    public int getLevelType() {
-        return levelType;
-    }
+        public void setLevelName(String levelName) {
+            this.levelName = levelName;
+        }
 
-    public void setLevelType(int levelType) {
-        this.levelType = levelType;
-    }
+        public int getLevelType() {
+            return levelType;
+        }
 
-    @Override
-    public String toString() {
-        return "LanguageLevelDTO{" +
-                "levelName='" + levelName + '\'' +
-                ", levelType=" + levelType +
-                '}';
+        public void setLevelType(int levelType) {
+            this.levelType = levelType;
+        }
+
+        @Override
+        public String toString() {
+            return "LanguageLevelDTO{" +
+                    "levelName='" + levelName + '\'' +
+                    ", levelType=" + levelType +
+                    '}';
+        }
     }
 }

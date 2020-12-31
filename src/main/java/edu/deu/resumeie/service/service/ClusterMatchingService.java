@@ -12,6 +12,7 @@ import edu.deu.resumeie.shared.SharedObjects;
 import edu.deu.resumeie.training.nlp.informationextraction.InformationExtractor;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,11 +26,18 @@ public class ClusterMatchingService {
     //@Autowired
     private final JobDataRepository jobDataRepository;
     private final JobNameAnalyzer jobNameAnalyzer;
+    private Client clusterServiceClient;
 
     public ClusterMatchingService(){
         ie = new InformationExtractor(3);
         jobDataRepository = new JobDataRepository();
         jobNameAnalyzer = new JobNameAnalyzer();
+        startServiceConnection();
+    }
+
+    private void startServiceConnection(){
+        clusterServiceClient = Client.create("localhost", 65432);
+        clusterServiceClient.startConnection();
     }
 
 
@@ -70,18 +78,21 @@ public class ClusterMatchingService {
             messageToSend.addItem("vectorizer", SharedObjects.serviceParams.vectorizer);
             ieResult.forEach(item -> messageToSend.addItemToArray("jobInfo", item));
             // Connect to python clustering service
-            Client clusterServiceClient = Client.create("127.0.0.1", 65432);
-            if (clusterServiceClient.startConnection()){
-                System.err.printf("Service ERR. Detailed Message: %s%n", clusterServiceClient.getErrorCause());
-                return;
+            String receivedMessageStr = "";
+            try{
+                if (clusterServiceClient.hasError())
+                    throw new IOException("Clustering service error");
+
+                receivedMessageStr = clusterServiceClient.sendAndReceive(messageToSend.toString());
+                // Parse received message
+                Optional<ClusterServiceMessage> receivedMessage = ClusterServiceMessage.parse(receivedMessageStr);
+                receivedMessage.ifPresent(message -> clustersReference.set(message.getArrayAsString("clusters")));
+            } catch(IOException e) {
+                System.err.println("Client service communication error. Restarting service...");
+                // Reset connection
+                clusterServiceClient.stopConnection();
+                startServiceConnection();
             }
-            String receivedMessageStr = clusterServiceClient.sendAndReceive(messageToSend.toString());
-            clusterServiceClient.stopConnection();
-            // Parse received message
-            Optional<ClusterServiceMessage> receivedMessage = ClusterServiceMessage.parse(receivedMessageStr);
-            receivedMessage.ifPresent(message -> clustersReference.set(message.getArrayAsString("clusters")));
-
-
         });
 
         // Retrieve both information from AtomicReferences and begin matching process.
