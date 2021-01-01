@@ -1,5 +1,8 @@
 package edu.deu.resumeie.service.service.socket;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -7,6 +10,8 @@ import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 
 public class Client {
+
+    private static final Logger logger = LogManager.getLogger(Client.class);
 
     private boolean receiveError = false;
     private boolean tcpConnectionError = false;
@@ -26,7 +31,7 @@ public class Client {
         this.port = port;
     }
 
-    public boolean startConnection(){
+    public void startConnection(){
         try {
             clientSocket = new Socket();
             clientSocket.connect(new InetSocketAddress(ip, port), 200);
@@ -34,10 +39,9 @@ public class Client {
             clientSocket.setKeepAlive(true);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.getLocalizedMessage(), e);
             initError = true;
         }
-        return hasError();
     }
 
     public void stopConnection(){
@@ -60,12 +64,12 @@ public class Client {
                 receivedMessage = new String(recBuff, 0, readBytes, StandardCharsets.UTF_8);
                 receiveError = false;
             } else {
-                System.out.println("ERR: Receive Error");
+                logger.error("Receive Error");
                 receiveError = true;
             }
             tcpConnectionError = false;
         } catch (IOException e){
-            e.printStackTrace();
+            logger.error(e.getLocalizedMessage(), e);
             tcpConnectionError = true;
             if(e instanceof SocketTimeoutException){
                 timeOutError = true;

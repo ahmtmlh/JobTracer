@@ -9,6 +9,8 @@ import edu.deu.resumeie.training.nlp.morphology.pattern.PatternMatcher;
 import edu.deu.resumeie.training.nlp.morphology.pattern.PatternType;
 import edu.deu.resumeie.training.nlp.morphology.token.NGramTokenizer;
 import edu.deu.resumeie.training.nlp.morphology.token.Tokenizer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.nio.file.Paths;
@@ -17,6 +19,8 @@ import java.util.*;
 import static edu.deu.resumeie.training.nlp.morphology.pattern.PatternType.*;
 
 public class InformationExtractor {
+
+	private static final Logger logger = LogManager.getLogger(InformationExtractor.class);
 
 	public static final String VERSION = "V1.3.2";
 
@@ -101,7 +105,7 @@ public class InformationExtractor {
 					identifier = line;
 				} else {
 					if (current == 0){
-						System.err.printf("Identifier \"%s\" is not known.%n", identifier);
+						logger.warn(String.format("Identifier \"%s\" is not known.%n", identifier));
 						continue;
 					}
 					String[] temp = line.split(",");
@@ -117,7 +121,7 @@ public class InformationExtractor {
 						types[i] = tempType;
 					}
 					if (!itemValid){
-						System.err.printf("Item: \"%s\" is not valid%n", line);
+						logger.warn(String.format("Item: \"%s\" is not valid%n", line));
 						continue;
 					}
 					switch(current){
@@ -135,7 +139,7 @@ public class InformationExtractor {
 				}
 			}
 		} catch (IOException e){
-			System.out.println("Config file not found. Using default values...");
+			logger.warn("Config file not found. Using default values...");
 			initListsDefaultValues();
 		}
 	}
@@ -348,34 +352,9 @@ public class InformationExtractor {
 	 * @param items List of sentences, with extra information.
 	 */
 	public void extractFromList(List<ListItem> items) {
-		// Threading?
-//		Thread[] threadArr = new Thread[4];
-//		for (int i = 0; i < 4; i++) {
-//			int finalI = i;
-//			threadArr[i] = new Thread(() -> {
-//				int start = (items.size() / 4) * finalI;
-//				int end = start + (items.size()/4);
-//				while (start < end) {
-//					extractFromListItem(items.get(start));
-//					start++;
-//				}
-//			});
-//		}
-//		for(Thread thread : threadArr){
-//			thread.start();
-//		}
-//
-//		for(Thread thread : threadArr){
-//			try {
-//				thread.join();
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
-//			}
-//		}
 
 		for (ListItem item : items) {
 			extractFromListItem(item);
-			//System.out.printf("Line: %d/%d%n", i, n);
 		}
 	}
 
@@ -426,18 +405,17 @@ public class InformationExtractor {
 				bw.newLine();
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getLocalizedMessage(), e);
 		}
-		try(BufferedWriter bw = new BufferedWriter(new FileWriter(filename+".lm.txt"))){
 
+		try(BufferedWriter bw = new BufferedWriter(new FileWriter(filename+".lm.txt"))){
 			for (Map.Entry<ListItem, List<String>> entry : lemmatizedResult.entrySet()){
 				String res = getFormattedString(entry.getKey(), entry.getValue());
 				bw.write(res);
 				bw.newLine();
 			}
-
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getLocalizedMessage(), e);
 		}
 	}
 	

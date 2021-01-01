@@ -1,5 +1,7 @@
 package edu.deu.resumeie.service.json;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -8,6 +10,8 @@ import org.json.JSONTokener;
 import java.util.*;
 
 public class ClusterServiceMessage implements JsonMessage{
+
+    private static final Logger logger = LogManager.getLogger(ClusterServiceMessage.class);
 
     // Arrays
     private final Map<String, List<String>> arrays;
@@ -123,7 +127,7 @@ public class ClusterServiceMessage implements JsonMessage{
             message.addItem("count", count);
             message.stringForm = jsonString;
         } catch (JSONException e){
-            e.printStackTrace();
+            logger.error(e.getLocalizedMessage(), e);
         }
         return Optional.of(message);
     }

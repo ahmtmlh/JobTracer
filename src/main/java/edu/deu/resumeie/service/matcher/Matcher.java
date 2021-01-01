@@ -1,6 +1,8 @@
 package edu.deu.resumeie.service.matcher;
 
 import edu.deu.resumeie.service.model.Job;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
@@ -25,6 +27,8 @@ public class Matcher {
         HIGH,
         HIGHEST
     }
+
+    private static final Logger logger = LogManager.getLogger(Matcher.class);
 
     /**
      * Matches given clustering information to given Jobs. Matching process is done with with unique clusters.
@@ -101,7 +105,7 @@ public class Matcher {
                 Integer clusterAsInt = Integer.parseInt(cluster.trim());
                 set.add(clusterAsInt);
             } catch (NumberFormatException e){
-                e.printStackTrace();
+                logger.error(e.getLocalizedMessage(), e);
             }
         }
         return set;
