@@ -3,9 +3,10 @@ package edu.deu.resumeie.service.dao;
 import edu.deu.resumeie.service.connectionpool.BasicConnectionPool;
 import edu.deu.resumeie.service.connectionpool.ConnectionPool;
 import edu.deu.resumeie.service.connectionpool.ConnectionPoolException;
-import edu.deu.resumeie.service.model.City;
 import edu.deu.resumeie.service.model.Job;
 import edu.deu.resumeie.shared.SharedObjects;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
@@ -24,6 +25,8 @@ public class JobDataRepository {
          AND position = ?       (indexed)
          AND cities LIKE %?%    (can't use index on wildcard search. Table search required)
      */
+
+    private static final Logger logger = LogManager.getLogger(JobDataRepository.class);
 
     private static final String SQL_QUERY =
             "SELECT JOB_DATA.*, CITIES.name, CLUSTER_DATA.clusters_tfidf, CLUSTER_DATA.clusters_cnt " +
@@ -84,10 +87,8 @@ public class JobDataRepository {
             } finally {
                 connectionPool.releaseConnection(conn);
             }
-        } catch(SQLException e){
-            e.printStackTrace();
-        } catch(ConnectionPoolException e){
-            System.err.println(e.getLocalizedMessage());
+        } catch(SQLException | ConnectionPoolException e){
+            logger.error(e.getLocalizedMessage(), e);
         }
 
         return positions;
@@ -108,10 +109,8 @@ public class JobDataRepository {
             } finally {
                 connectionPool.releaseConnection(conn);
             }
-        } catch(SQLException e){
-            e.printStackTrace();
-        } catch(ConnectionPoolException e){
-            System.err.println(e.getLocalizedMessage());
+        } catch(SQLException | ConnectionPoolException e){
+            logger.error(e.getLocalizedMessage(), e);
         }
 
         return positions;
@@ -151,10 +150,8 @@ public class JobDataRepository {
             } finally {
                 connectionPool.releaseConnection(conn);
             }
-        } catch (SQLException e){
-            e.printStackTrace();
-        } catch (ConnectionPoolException e){
-            System.err.println(e.getLocalizedMessage());
+        } catch (SQLException | ConnectionPoolException e){
+            logger.error(e.getLocalizedMessage(), e);
         }
 
         return new ArrayList<>(retMap.values());

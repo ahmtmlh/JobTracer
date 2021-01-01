@@ -10,6 +10,8 @@ import edu.deu.resumeie.service.nlp.JobNameAnalyzer;
 import edu.deu.resumeie.service.service.socket.Client;
 import edu.deu.resumeie.shared.SharedObjects;
 import edu.deu.resumeie.training.nlp.informationextraction.InformationExtractor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -20,6 +22,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class ClusterMatchingService {
+
+    private static final Logger logger = LogManager.getLogger(ClusterMatchingService.class);
 
     private final InformationExtractor ie;
 
@@ -54,7 +58,7 @@ public class ClusterMatchingService {
 
         // Make this change to CV to make sure that there is a job %100
         cv.setProfession(jobNameAnalyzer.getBestMatch(cv.getProfession()));
-        System.out.println("Current profession: " + cv.getProfession());
+        logger.info("Current profession: " + cv.getProfession());
 
         AtomicReference<String> clustersReference = new AtomicReference<>();
         AtomicReference<List<Job>> preMatchedList = new AtomicReference<>();
@@ -81,14 +85,15 @@ public class ClusterMatchingService {
             String receivedMessageStr = "";
             try{
                 if (clusterServiceClient.hasError())
-                    throw new IOException("Clustering service error");
+                    throw new IOException(String.format("Clustering service error: %s", clusterServiceClient.getErrorCause()));
 
                 receivedMessageStr = clusterServiceClient.sendAndReceive(messageToSend.toString());
                 // Parse received message
                 Optional<ClusterServiceMessage> receivedMessage = ClusterServiceMessage.parse(receivedMessageStr);
                 receivedMessage.ifPresent(message -> clustersReference.set(message.getArrayAsString("clusters")));
             } catch(IOException e) {
-                System.err.println("Client service communication error. Restarting service...");
+                logger.error(e.getLocalizedMessage(), e);
+                logger.warn("Client service communication error. Restarting service...");
                 // Reset connection
                 clusterServiceClient.stopConnection();
                 startServiceConnection();
@@ -100,10 +105,12 @@ public class ClusterMatchingService {
         try{
             // Start threads
             preMatcherThread.start();
-            clusterServiceThread.start();
+            if (priority != Matcher.MatchingPriority.NONE)
+                clusterServiceThread.start();
             // Wait for them to finish
             preMatcherThread.join();
-            clusterServiceThread.join();
+            if (priority != Matcher.MatchingPriority.NONE)
+                clusterServiceThread.join();
             // Retrieve information
             List<Job> preMatchList = preMatchedList.get();
             String clusterString = clustersReference.get();
@@ -112,16 +119,17 @@ public class ClusterMatchingService {
             if (preMatchList == null || preMatchList.isEmpty()){
                 throw new IllegalArgumentException("Get PreMatchList Error. Check Logs");
             }
-            if (clusterString == null || clusterString.isEmpty()){
+            if (priority != Matcher.MatchingPriority.NONE && (clusterString == null || clusterString.isEmpty())){
                 throw new IllegalArgumentException("Get Clustering Information Error. Check Logs");
             }
 
             // Begin matching
             finalList = Matcher.match(preMatchList, clusterString, priority);
 
-        } catch (InterruptedException | IllegalArgumentException e){
-            e.printStackTrace();
-            // Return ERR to front-end, finalList will be null
+        } catch (InterruptedException e){
+            logger.error(e.getLocalizedMessage(), e);
+        } catch (IllegalArgumentException e){
+            logger.fatal(e.getLocalizedMessage());
         }
 
         return Optional.ofNullable(finalList);

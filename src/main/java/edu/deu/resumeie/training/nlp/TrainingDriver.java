@@ -5,6 +5,8 @@ import edu.deu.resumeie.training.datareader.JobDataReader;
 import edu.deu.resumeie.training.nlp.informationextraction.InformationExtractor;
 import edu.deu.resumeie.training.nlp.informationextraction.ProcessException;
 import edu.deu.resumeie.training.parser.JobInfoHtmlParser;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -15,6 +17,8 @@ import java.util.List;
 
 public class TrainingDriver {
 
+    private static final Logger logger = LogManager.getLogger(TrainingDriver.class);
+
     private static final String DONE = "\tDone";
 
     public void start() {
@@ -22,37 +26,37 @@ public class TrainingDriver {
     }
 
     private void startV2(){
-        System.out.println("Html parsing...");
+        logger.debug("Html parsing...");
         List<InformationExtractor.ListItem> list;
         try{
             list = htmlParse(-1);
         } catch (IOException e){
-            e.printStackTrace();
+            logger.fatal(e.getLocalizedMessage(), e);
             return;
         }
-        System.out.println(DONE);
-        System.out.println("Pattern Matching...");
+        logger.debug(DONE);
+        logger.debug("Pattern Matching...");
 
         InformationExtractor ie = new InformationExtractor(3);
         ie.extractFromList(list);
         ie.saveToFile();
-        System.out.println(DONE);
+        logger.debug(DONE);
 
-//        System.out.println("Clustering...");
-//        try {
-//            clustering();
-//            System.out.println(DONE);
-//        } catch (ProcessException | IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            System.out.println("Deleting Temp files...");
-//            try {
-//                ie.deleteTempFiles();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        System.out.println(DONE);
+        logger.debug("Clustering...");
+        try {
+            clustering();
+            logger.debug(DONE);
+        } catch (InterruptedException | ProcessException | IOException e) {
+            logger.error(e.getLocalizedMessage(), e);
+        } finally {
+            logger.debug("Deleting Temp files...");
+            try {
+                ie.deleteTempFiles();
+            } catch (IOException e) {
+                logger.error(e.getLocalizedMessage(), e);
+            }
+        }
+        logger.debug(DONE);
     }
 
     private List<InformationExtractor.ListItem> htmlParse(int n) throws IOException {

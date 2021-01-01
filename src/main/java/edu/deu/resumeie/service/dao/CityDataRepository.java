@@ -5,6 +5,8 @@ import edu.deu.resumeie.service.connectionpool.ConnectionPool;
 import edu.deu.resumeie.service.connectionpool.ConnectionPoolException;
 import edu.deu.resumeie.service.model.City;
 import edu.deu.resumeie.shared.SharedObjects;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
@@ -16,6 +18,8 @@ import java.util.stream.Collectors;
 
 @Repository
 public class CityDataRepository {
+
+    private static final Logger logger = LogManager.getLogger(CityDataRepository.class);
 
     private final ConnectionPool connectionPool;
 
@@ -32,18 +36,16 @@ public class CityDataRepository {
                 ResultSet rs = stmt.executeQuery(sql);
 
                 while (rs.next()) {
-                    String zipCode = rs.getString("id");
-                    String cityName = rs.getString("name");
+                    String zipCode = rs.getString(1);
+                    String cityName = rs.getString(2);
                     list.add(new City(cityName,zipCode));
                 }
                 rs.close();
             } finally {
                 connectionPool.releaseConnection(conn);
             }
-        } catch(SQLException e){
-            e.printStackTrace();
-        } catch(ConnectionPoolException e){
-            System.err.println(e.getLocalizedMessage());
+        } catch(SQLException | ConnectionPoolException e){
+            logger.fatal(e.getLocalizedMessage(), e);
         }
 
         return list.stream()
@@ -68,10 +70,8 @@ public class CityDataRepository {
             } finally {
                 connectionPool.releaseConnection(conn);
             }
-        } catch(SQLException e){
-            e.printStackTrace();
-        } catch(ConnectionPoolException e){
-            System.err.println(e.getLocalizedMessage());
+        } catch(SQLException | ConnectionPoolException e){
+            logger.fatal(e.getLocalizedMessage(), e);
         }
 
         return list;

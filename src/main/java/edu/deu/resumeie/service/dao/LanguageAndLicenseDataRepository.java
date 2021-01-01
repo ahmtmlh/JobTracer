@@ -4,6 +4,8 @@ import edu.deu.resumeie.service.connectionpool.BasicConnectionPool;
 import edu.deu.resumeie.service.connectionpool.ConnectionPool;
 import edu.deu.resumeie.service.connectionpool.ConnectionPoolException;
 import edu.deu.resumeie.shared.SharedObjects;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
@@ -12,6 +14,8 @@ import java.util.List;
 
 @Repository
 public class LanguageAndLicenseDataRepository {
+
+    private static final Logger logger = LogManager.getLogger(LanguageAndLicenseDataRepository.class);
 
     private final ConnectionPool connectionPool;
 
@@ -35,10 +39,8 @@ public class LanguageAndLicenseDataRepository {
             } finally {
                 connectionPool.releaseConnection(conn);
             }
-        } catch(SQLException e){
-            e.printStackTrace();
-        } catch(ConnectionPoolException e){
-            System.err.println(e.getLocalizedMessage());
+        } catch(SQLException | ConnectionPoolException e){
+            logger.error(e.getLocalizedMessage(), e);
         }
         return languages;
     }
@@ -60,10 +62,8 @@ public class LanguageAndLicenseDataRepository {
             } finally {
                 connectionPool.releaseConnection(conn);
             }
-        } catch(SQLException e){
-            e.printStackTrace();
-        } catch(ConnectionPoolException e){
-            System.err.println(e.getLocalizedMessage());
+        } catch(SQLException | ConnectionPoolException e){
+            logger.error(e.getLocalizedMessage(), e);
         }
         return languages;
     }
@@ -85,10 +85,8 @@ public class LanguageAndLicenseDataRepository {
             } finally {
                 connectionPool.releaseConnection(conn);
             }
-        } catch(SQLException e){
-            e.printStackTrace();
-        } catch(ConnectionPoolException e){
-            System.err.println(e.getLocalizedMessage());
+        } catch(SQLException | ConnectionPoolException e){
+            logger.error(e.getLocalizedMessage(), e);
         }
         return drivingLicenses;
     }

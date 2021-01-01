@@ -1,9 +1,14 @@
 package edu.deu.resumeie.service.dispatcher;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.*;
 
 
 public class Dispatcher {
+
+    private static final Logger logger = LogManager.getLogger(Dispatcher.class);
 
     private static final int MAX_DISPATCH = 10000;
     private static final long ALIVE_TIMEOUT = 3 * 60 * 1000; // 3 minutes
@@ -37,7 +42,7 @@ public class Dispatcher {
             public void run() {
                 allIds.add(id);
                 reference.remove(id);
-                System.out.printf("Result %d has been deleted due to timeout%n", id);
+                logger.info(String.format("Result %d has been deleted due to timeout%n", id));
             }
         };
         new Timer().schedule(task, ALIVE_TIMEOUT);

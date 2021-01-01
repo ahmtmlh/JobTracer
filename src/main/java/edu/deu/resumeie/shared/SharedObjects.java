@@ -6,7 +6,7 @@ import java.util.Map;
 public class SharedObjects {
 
     // --------- CONSTANTS -------- //
-    public static final String VERSION = "V1.4.16";
+    public static final String VERSION = "V1.4.17";
     public static final String DB_CONN_STR = "jdbc:sqlite:./data/data.db";
     //public static final String DB_CONN_STR = "jdbc:mysql://localhost:3306/jobtest?user=root&userUnicode=true&useLegacyDatetimeCode=false&serverTimezone=Turkey&characterEncoding=UTF-8";
 

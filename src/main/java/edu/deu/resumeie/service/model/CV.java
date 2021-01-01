@@ -1,6 +1,7 @@
 package edu.deu.resumeie.service.model;
 
 import java.util.List;
+
 import static edu.deu.resumeie.shared.SharedObjects.educationStatusValues;
 
 public class CV {

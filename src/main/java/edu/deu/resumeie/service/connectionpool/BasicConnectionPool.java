@@ -1,5 +1,8 @@
 package edu.deu.resumeie.service.connectionpool;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -8,6 +11,7 @@ import java.util.List;
 
 public class BasicConnectionPool implements ConnectionPool{
 
+    private static final Logger logger = LogManager.getLogger(BasicConnectionPool.class);
 
     private final List<Connection> availableConnections;
     private final List<Connection> usedConnections;
@@ -67,7 +71,7 @@ public class BasicConnectionPool implements ConnectionPool{
                 availableConnections.add(createConnection(this.url, username, password));
             }
         } catch (SQLException e){
-            System.err.println(e.getLocalizedMessage());
+            logger.fatal(e.getLocalizedMessage());
         }
     }
 
@@ -77,7 +81,7 @@ public class BasicConnectionPool implements ConnectionPool{
                 availableConnections.add(createConnection(this.url));
             }
         } catch (SQLException e){
-            System.err.println(e.getLocalizedMessage());
+            logger.fatal(e.getLocalizedMessage(), e);
         }
     }
 

@@ -2,6 +2,8 @@ package edu.deu.resumeie.training.nlp.morphology.lemmatization;
 
 import edu.deu.resumeie.training.nlp.morphology.pattern.PatternMatcher;
 import edu.deu.resumeie.training.nlp.morphology.pattern.PatternType;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import zemberek.core.turkish.PrimaryPos;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.SingleAnalysis;
@@ -9,12 +11,13 @@ import zemberek.morphology.analysis.WordAnalysis;
 import zemberek.morphology.lexicon.RootLexicon;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
 public class TurkishLemmatizer implements Lemmatizer {
+
+	private static final Logger logger = LogManager.getLogger(TurkishLemmatizer.class);
 
 	private final Map<String, PatternType> edgeCaseWords;
 	private final TurkishMorphology morphology;
@@ -65,7 +68,7 @@ public class TurkishLemmatizer implements Lemmatizer {
 				}
 			}
 		} catch (IOException e){
-			e.printStackTrace();
+			logger.error(e.getLocalizedMessage(), e);
 		}
 	}
 
