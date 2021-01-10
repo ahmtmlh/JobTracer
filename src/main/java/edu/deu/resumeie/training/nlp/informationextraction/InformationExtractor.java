@@ -105,7 +105,7 @@ public class InformationExtractor {
 					identifier = line;
 				} else {
 					if (current == 0){
-						logger.warn(String.format("Identifier \"%s\" is not known.%n", identifier));
+						logger.warn(String.format("Identifier \"%s\" is not known.", identifier));
 						continue;
 					}
 					String[] temp = line.split(",");
@@ -121,7 +121,7 @@ public class InformationExtractor {
 						types[i] = tempType;
 					}
 					if (!itemValid){
-						logger.warn(String.format("Item: \"%s\" is not valid%n", line));
+						logger.warn(String.format("Item: \"%s\" is not valid.", line));
 						continue;
 					}
 					switch(current){

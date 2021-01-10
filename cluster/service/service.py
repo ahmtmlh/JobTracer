@@ -71,7 +71,7 @@ def start_connection():
         try:
             handle_connection()
         except ConnectionResetError:
-            print("Connection has been resetted by remote client. Restarting...")
+            print("Connection has been reset by remote client. Restarting...")
             pass
     print("No longer listening for connection")       
 
