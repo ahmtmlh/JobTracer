@@ -42,7 +42,7 @@ public class Dispatcher {
             public void run() {
                 allIds.add(id);
                 reference.remove(id);
-                logger.info(String.format("Result %d has been deleted due to timeout%n", id));
+                logger.info(String.format("Result %d has been deleted due to timeout", id));
             }
         };
         new Timer().schedule(task, ALIVE_TIMEOUT);

@@ -3,7 +3,6 @@ package edu.deu.resumeie;
 import edu.deu.resumeie.shared.SharedObjects;
 import edu.deu.resumeie.training.nlp.TrainingDriver;
 import org.apache.commons.cli.*;
-import org.springframework.boot.SpringApplication;
 
 import java.util.Locale;
 
@@ -91,6 +90,6 @@ public class App {
     }
 
     private static void serviceMain(String[] args) {
-        SpringApplication.run(WebApp.class, args);
+        WebApp.start(args);
     }
 }

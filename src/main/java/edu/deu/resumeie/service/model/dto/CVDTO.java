@@ -10,7 +10,7 @@ import java.util.List;
 public class CVDTO {
 
     @NotNull private ContactInformationDTO contactInformation;
-    @NotNull private PersonalInformationDTO personalInformation;
+    private PersonalInformationDTO personalInformation;
     @NotNull private EducationInformationDTO educationInformation;
     @NotNull private List<ForeignLanguageInformationDTO> foreignLanguageInformation;
     @NotNull private WorkExperienceDTO workExperiences;
@@ -104,16 +104,16 @@ public class CVDTO {
             this.foreignLanguageInformation.forEach(language -> list.add(getLanguageStatus(language)));
 
         // Add military information
-        if(this.getPersonalInformation().gender.getType() == 1 &&
+        if(getPersonalInformation() != null && getPersonalInformation().gender.getType() == 1 &&
                 this.personalInformation.getMilitaryServiceStatus().equalsIgnoreCase("yaptım"))
             list.add("Askerlik görevimi tamamladım.");
 
         // Add driving licence information
-        if (getPersonalInformation().driverLicence != null)
+        if (getPersonalInformation() != null && getPersonalInformation().driverLicence != null)
             list.addAll(driverLicences());
 
         // Add education information
-        String temp = getEducationStatus(this.educationInformation);
+        String temp = getEducationStatus(educationInformation);
         if (!temp.isEmpty())
             list.add(temp);
 
