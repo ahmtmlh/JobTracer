@@ -19,8 +19,6 @@ public class TrainingDriver {
 
     private static final Logger logger = LogManager.getLogger(TrainingDriver.class);
 
-    private static final String DONE = "\tDone";
-
     public void start() {
         startV2();
     }
@@ -34,18 +32,18 @@ public class TrainingDriver {
             logger.fatal(e.getLocalizedMessage(), e);
             return;
         }
-        logger.debug(DONE);
+        logger.debug("Html parsing done...");
+        
         logger.debug("Pattern Matching...");
-
         InformationExtractor ie = new InformationExtractor(3);
         ie.extractFromList(list);
         ie.saveToFile();
-        logger.debug(DONE);
+        logger.debug("Pattern matching done...");
 
         logger.debug("Clustering...");
         try {
             clustering();
-            logger.debug(DONE);
+            logger.debug("Clustering done");
         } catch (InterruptedException | ProcessException | IOException e) {
             logger.error(e.getLocalizedMessage(), e);
         } finally {
@@ -56,7 +54,7 @@ public class TrainingDriver {
                 logger.error(e.getLocalizedMessage(), e);
             }
         }
-        logger.debug(DONE);
+        logger.debug("Cleanup completed");
     }
 
     private List<InformationExtractor.ListItem> htmlParse(int n) throws IOException {

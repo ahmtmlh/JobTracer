@@ -53,14 +53,15 @@ public class Matcher {
 
         PriorityQueue<PriorityQueueItem> pq = new PriorityQueue<>();
         List<Integer> cvClustersList = createClusterList(cvClusters);
-
+        Set<Integer> uniqueCvClusterList = uniqueClusters(cvClustersList);
         for(Job job : preMatchedJobs){
             List<Integer> jobAdClusterList = createClusterList(job.getClusters());
+            Set<Integer> uniqueJobAdClusterList = uniqueClusters(jobAdClusterList);
             // This is done to eliminate outliers
-            if (uniqueClusterCount(jobAdClusterList) <= 2)
+            if (uniqueJobAdClusterList.size() <= 2)
                 continue;
             // If sets are identical, that job has the biggest priority
-            if (jobAdClusterList.equals(cvClustersList)){
+            if (uniqueJobAdClusterList.equals(uniqueCvClusterList)){
                 pq.add(new PriorityQueueItem(job, 0));
             } else if(priority != MatchingPriority.HIGHEST) {
                 double intersectionSize = getIntersectionSize(new ArrayList<>(jobAdClusterList), cvClustersList);
@@ -96,23 +97,8 @@ public class Matcher {
         return list;
     }
 
-
-    private static Set<Integer> createClusterSet(String clusters){
-        String[] clusterArr = clusters.split(",");
-        Set<Integer> set = new HashSet<>();
-        for(String cluster : clusterArr){
-            try{
-                Integer clusterAsInt = Integer.parseInt(cluster.trim());
-                set.add(clusterAsInt);
-            } catch (NumberFormatException e){
-                logger.error(e.getLocalizedMessage(), e);
-            }
-        }
-        return set;
-    }
-
-    private static int uniqueClusterCount(List<Integer> clusterList){
-        return new HashSet<>(clusterList).size();
+    private static Set<Integer> uniqueClusters(List<Integer> clusterList){
+        return new HashSet<>(clusterList);
     }
 
     private static int getIntersectionSize(Collection<Integer> c1, Collection<Integer> c2){
