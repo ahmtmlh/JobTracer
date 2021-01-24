@@ -177,18 +177,18 @@ def populate_tables(sqliteDbFile, mysqlDb):
     mysqlDb.commit()
     print("DEPARTMENTS Transfer completed")
 
-    '''
+    
     # LANGUAGES
     sqlite_cur.execute("SELECT * FROM LANGUAGES")
     rows = sqlite_cur.fetchall()
     for row in rows:
         try:
             mysql_cur.execute("INSERT INTO LANGUAGES VALUES (%s, %s)", row)
-        except:
+        except Exception:
             pass        
     mysqlDb.commit()
     print("LANGUAGES Transfer completed")
-        
+    '''
     # DRIVING_LICENSES
     sqlite_cur.execute("SELECT * FROM DRIVING_LICENSES")
     rows = sqlite_cur.fetchall()
