@@ -5,7 +5,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
-
 public class Dispatcher {
 
     private static final Logger logger = LogManager.getLogger(Dispatcher.class);
@@ -16,6 +15,7 @@ public class Dispatcher {
     private final List<Integer> allIds;
     private final Random random;
     private final Map<Integer, TimerTask> tasks;
+    private final Timer mainTimer;
 
     private final Map<Integer, ?> reference;
 
@@ -27,6 +27,7 @@ public class Dispatcher {
         random = new Random();
         tasks = new HashMap<>();
         this.reference = reference;
+        mainTimer = new Timer();
     }
 
     public synchronized int getId(){
@@ -45,7 +46,7 @@ public class Dispatcher {
                 logger.info(String.format("Result %d has been deleted due to timeout", id));
             }
         };
-        new Timer().schedule(task, ALIVE_TIMEOUT);
+        mainTimer.schedule(task, ALIVE_TIMEOUT);
         tasks.put(id, task);
     }
 
