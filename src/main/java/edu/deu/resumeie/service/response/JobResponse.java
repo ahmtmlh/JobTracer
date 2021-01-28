@@ -7,7 +7,7 @@ import java.util.List;
 
 public class JobResponse {
 
-    public static final JobResponse EMPTY_RESPONSE = new JobResponse(-1, new ArrayList<>());
+    public static final List<Job> EMPTY_LIST = new ArrayList<>();
 
     private Integer listId;
     private Integer totalPages;
@@ -23,6 +23,10 @@ public class JobResponse {
     public JobResponse(Integer listId, Integer totalPages, List<Job> jobs) {
         this(listId, jobs);
         this.totalPages = totalPages;
+    }
+
+    public static JobResponse emptyResponse(int listId){
+        return new JobResponse(listId, EMPTY_LIST);
     }
 
     public Integer getListId() {

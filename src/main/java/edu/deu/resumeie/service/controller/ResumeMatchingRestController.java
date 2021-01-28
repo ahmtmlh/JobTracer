@@ -57,33 +57,38 @@ public class ResumeMatchingRestController {
                 Matcher.MatchingPriority.MEDIUM : Matcher.MatchingPriority.valueOf(cv.getMatchingPriority().toUpperCase());
 
         Optional<List<Job>> jobList = resumeMatchingService.getMatchedJobs(createdCV, priority);
-
+        int listId = dispatcher.getId();
         if (jobList.isPresent() && !jobList.get().isEmpty()) {
-			int listId = dispatcher.getId();
 			int totalPages = (int) Math.ceil((double) jobList.get().size() / PAGE_SIZE);
 			results.put(listId, new MatchingResult(jobList.get(), totalPages, priority, createdCV));
 			List<Job> page = getPage(0, jobList.get());
-
 			return ResponseEntity.ok(new JobResponse(listId, totalPages, page));
         } else {
-            return ResponseEntity.ok(JobResponse.EMPTY_RESPONSE);
+            results.put(listId, new MatchingResult(null, 0, priority, createdCV));
+            return ResponseEntity.ok(JobResponse.emptyResponse(listId));
         }
     }
 
     @PostMapping("/resumeInfoPage")
     public ResponseEntity<JobResponse> getJobs(@RequestBody @Valid PageRequest page) {
+        boolean found = false;
         if (results.containsKey(page.listId)) {
+            found = true;
 			dispatcher.resetTimer(page.listId);
             MatchingResult res = results.get(page.listId);
             Matcher.MatchingPriority newPriority = page.matchingPriority == null ? null : Matcher.MatchingPriority.valueOf(page.matchingPriority.toUpperCase());
             if (newPriority != null && newPriority != res.priority) {
+                // Reset to default
+                res.totalPages = 0;
+                res.jobList = null;
+                // Update
+                res.priority = newPriority;
                 // Match Again
                 Optional<List<Job>> jobList = resumeMatchingService.getMatchedJobs(res.cv, newPriority);
                 jobList.ifPresent(jobs -> {
 					res.jobList = jobs;
 					page.setPage(0);
 					res.totalPages = (int) Math.ceil((double) jobList.get().size() / PAGE_SIZE);
-					res.priority = newPriority;
 				});
             }
 
@@ -92,13 +97,13 @@ public class ResumeMatchingRestController {
                 return ResponseEntity.ok(new JobResponse(page.listId, res.totalPages, pageList));
             }
         }
-        return ResponseEntity.ok(JobResponse.EMPTY_RESPONSE);
+        return ResponseEntity.ok(JobResponse.emptyResponse(found ? page.listId : -1));
     }
 
 
     private List<Job> getPage(int page, List<Job> all) {
         int start = page * PAGE_SIZE;
-        if (start > all.size()) {
+        if (all == null || start > all.size()) {
             return null;
         }
         int end = start + PAGE_SIZE;
