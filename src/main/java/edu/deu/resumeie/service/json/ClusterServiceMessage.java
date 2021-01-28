@@ -32,12 +32,15 @@ public class ClusterServiceMessage implements JsonMessage{
 
     public void addItem(String key, Object item){
         root.put(key, item.toString());
+        changed = true;
     }
 
     @Override
     public boolean addArray(String arrayName) {
-        if(arrays.containsKey(arrayName)) return false;
+        if(arrays.containsKey(arrayName))
+            return false;
         arrays.put(arrayName, new ArrayList<>());
+        changed = true;
         return true;
     }
 
@@ -54,6 +57,7 @@ public class ClusterServiceMessage implements JsonMessage{
 
     public void removeItem(String key){
         root.remove(key);
+        changed = true;
     }
 
     @Override

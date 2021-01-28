@@ -27,19 +27,18 @@ public class ClusterMatchingService {
 
     private final InformationExtractor ie;
 
-    //@Autowired
     private final JobDataRepository jobDataRepository;
     private final JobNameAnalyzer jobNameAnalyzer;
     private Client clusterServiceClient;
 
-    public ClusterMatchingService(){
+    public ClusterMatchingService() {
         ie = new InformationExtractor(3);
         jobDataRepository = new JobDataRepository();
         jobNameAnalyzer = new JobNameAnalyzer();
         startServiceConnection();
     }
 
-    private void startServiceConnection(){
+    private void startServiceConnection() {
         clusterServiceClient = Client.create("localhost", 65432);
         clusterServiceClient.startConnection();
     }
@@ -49,18 +48,19 @@ public class ClusterMatchingService {
      * MainProcess of the back-end service. Receives a CV from front-end service and
      * matches that CV to available jobs in the database to find the optimal job ad for
      * that cv.
-     *
+     * <p>
      * CV is received from front-end service.
-     * @param cv A CV object that represents person's information as well as abilities.
+     *
+     * @param cv       A CV object that represents person's information as well as abilities.
      * @param priority Matching priority for the matching process
      */
-    public Optional<List<Job>> matchingProcess(CV cv, Matcher.MatchingPriority priority){
+    public Optional<List<Job>> matchingProcess(CV cv, Matcher.MatchingPriority priority) {
 
         // Make this change to CV to make sure that there is a job %100
         cv.setProfession(jobNameAnalyzer.getBestMatch(cv.getProfession()));
         logger.info("Current profession: " + cv.getProfession());
 
-        AtomicReference<String> clustersReference = new AtomicReference<>();
+        AtomicReference<String> ieResultReference = new AtomicReference<>();
         AtomicReference<List<Job>> preMatchedList = new AtomicReference<>();
 
         Thread preMatcherThread = new Thread(() -> {
@@ -70,28 +70,30 @@ public class ClusterMatchingService {
                     cv.getExperience(), cv.getEducationStatus(), cv.getProfession(), cities, SharedObjects.serviceParams.getTextFields));
         });
 
-        Thread clusterServiceThread = new Thread(() -> {
+        Thread ieServiceThread = new Thread(() -> {
             // Information Extraction
             ie.clear();
             ie.extractFromStringList(cv.getQualificationList());
             List<String> ieResult = ie.getLemmatizedResults();
-            // Prepare JSON Message to be send to clustering service
             JsonMessage messageToSend = new ClusterServiceMessage();
             messageToSend.addArray("jobInfo");
-            // Force the service to use TF-IDF vectorizer
             messageToSend.addItem("vectorizer", SharedObjects.serviceParams.vectorizer);
             ieResult.forEach(item -> messageToSend.addItemToArray("jobInfo", item));
-            // Connect to python clustering service
-            String receivedMessageStr = "";
-            try{
+            String receivedMessageStr;
+            try {
                 if (clusterServiceClient.hasError())
                     throw new IOException(String.format("Clustering service error: %s", clusterServiceClient.getErrorCause()));
 
-                receivedMessageStr = clusterServiceClient.sendAndReceive(messageToSend.toString());
-                // Parse received message
-                Optional<ClusterServiceMessage> receivedMessage = ClusterServiceMessage.parse(receivedMessageStr);
-                receivedMessage.ifPresent(message -> clustersReference.set(message.getArrayAsString("clusters")));
-            } catch(IOException e) {
+                if (ieResult.isEmpty()) {
+                    logger.debug("Information Extractor extracted nothing. Not sending to clustering service...");
+                } else {
+                    receivedMessageStr = clusterServiceClient.sendAndReceive(messageToSend.toString());
+                    // Parse received message
+                    Optional<ClusterServiceMessage> receivedMessage = ClusterServiceMessage.parse(receivedMessageStr);
+                    receivedMessage.ifPresent(message -> ieResultReference.set(message.getArrayAsString("clusters")));
+                }
+
+            } catch (IOException e) {
                 logger.error(e.getLocalizedMessage(), e);
                 logger.warn("Client service communication error. Restarting service...");
                 // Reset connection
@@ -102,33 +104,33 @@ public class ClusterMatchingService {
 
         // Retrieve both information from AtomicReferences and begin matching process.
         List<Job> finalList = null;
-        try{
+        try {
             // Start threads
             preMatcherThread.start();
             if (priority != Matcher.MatchingPriority.NONE)
-                clusterServiceThread.start();
+                ieServiceThread.start();
             // Wait for them to finish
             preMatcherThread.join();
             if (priority != Matcher.MatchingPriority.NONE)
-                clusterServiceThread.join();
+                ieServiceThread.join();
             // Retrieve information
             List<Job> preMatchList = preMatchedList.get();
-            String clusterString = clustersReference.get();
+            String ieResultString = ieResultReference.get();
 
             // Check for values
-            if (preMatchList == null || preMatchList.isEmpty()){
+            if (preMatchList == null || preMatchList.isEmpty()) {
                 throw new IllegalArgumentException("Get PreMatchList Error. Check Logs");
             }
-            if (priority != Matcher.MatchingPriority.NONE && (clusterString == null || clusterString.isEmpty())){
-                throw new IllegalArgumentException("Get Clustering Information Error. Check Logs");
+            if (priority != Matcher.MatchingPriority.NONE && (ieResultString == null || ieResultString.isEmpty())) {
+                throw new IllegalArgumentException("Information Extraction Error. Check Logs");
             }
-
+            Matcher matcher = new Matcher();
             // Begin matching
-            finalList = Matcher.match(preMatchList, clusterString, priority);
+            finalList = matcher.match(preMatchList, ieResultString, priority);
 
-        } catch (InterruptedException e){
+        } catch (InterruptedException e) {
             logger.error(e.getLocalizedMessage(), e);
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             logger.fatal(e.getLocalizedMessage());
         }
 

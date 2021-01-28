@@ -18,43 +18,34 @@ def parseJson(jsonString):
 def createResponse(data_dict):
     return json.dumps(data_dict)
 
-
-def acceptConnection(s):
-    connection, address = s.accept()
-    with connection:
-        print("Connection by", address)
-        data = connection.recv(4096)
-        if not data:
-            return
-        return connection, data
-            
-
 #Get JSON from client, return another JSON that contains clustering information
 def process_data(data):
     count, messages, vectorizer = parseJson(data)
-    print("Using vectorizer:", vectorizer)
-    if vectorizer == 'count':
-        responses = predictCnt(messages)
-    else:
-        responses = predictTfidf(messages)
-    responses = [{"value" : int(response)} for response in responses]
+    responses = []
+    if count > 0:
+        if vectorizer == 'count':
+            responses = predictCnt(messages)
+        else:
+            responses = predictTfidf(messages)
+        responses = [{"value" : int(response)} for response in responses]
     jsonResponse = {"count" : count, "clusters" : responses}
     return createResponse(jsonResponse)
 
 
 def print_thread(data):
-    print("Recv: ", data)
+    print(data)
 
 def handle_request(connection, address):
     with connection:
         print("Connection by", address)
         while True:
-            data = connection.recv(8192)
+            data = connection.recv(16384)
             if not data:
                 break
             data = data.decode('utf-8')
 #            threading.Thread(target=print_thread, args=(data,)).start()
             response = process_data(data)
+#            threading.Thread(target=print_thread, args=(response,)).start()
             connection.sendall(response.encode('utf-8'))  
 
 def handle_connection():

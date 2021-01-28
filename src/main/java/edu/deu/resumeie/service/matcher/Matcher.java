@@ -41,7 +41,7 @@ public class Matcher {
      *
      * @return List of Job Ads that matches to the given clustering, with the given MatchPriority setting
      */
-    public static List<Job> match(List<Job> preMatchedJobs, String cvClusters, MatchingPriority priority){
+    public List<Job> match(List<Job> preMatchedJobs, String cvClusters, MatchingPriority priority){
 
         if(priority == null){
             priority = MatchingPriority.LOW;
@@ -50,10 +50,15 @@ public class Matcher {
         if (priority == MatchingPriority.NONE){
             return preMatchedJobs;
         }
-
+        List<Job> returnList = new ArrayList<>();
         PriorityQueue<PriorityQueueItem> pq = new PriorityQueue<>();
         List<Integer> cvClustersList = createClusterList(cvClusters);
         Set<Integer> uniqueCvClusterList = uniqueClusters(cvClustersList);
+        // If specified qualifications are less than 2, and priority is MEDIUM or higher, don't try to match anything.
+        // This problem is due to clustering error, clusters must be changed.
+        if (priority.ordinal() > MatchingPriority.LOW.ordinal() && uniqueCvClusterList.size() < 2){
+            return returnList;
+        }
         for(Job job : preMatchedJobs){
             List<Integer> jobAdClusterList = createClusterList(job.getClusters());
             Set<Integer> uniqueJobAdClusterList = uniqueClusters(jobAdClusterList);
@@ -80,12 +85,12 @@ public class Matcher {
             }
         }
 
-        List<Job> returnList = new ArrayList<>();
+
         pq.forEach(item -> returnList.add(item.getJob()));
         return returnList;
     }
 
-    private static List<Integer> createClusterList(String clusters){
+    private List<Integer> createClusterList(String clusters){
         String[] clusterArr = clusters.split(",");
         List<Integer> list = new ArrayList<>();
         for(String cluster : clusterArr){
@@ -97,11 +102,11 @@ public class Matcher {
         return list;
     }
 
-    private static Set<Integer> uniqueClusters(List<Integer> clusterList){
+    private Set<Integer> uniqueClusters(List<Integer> clusterList){
         return new HashSet<>(clusterList);
     }
 
-    private static int getIntersectionSize(Collection<Integer> c1, Collection<Integer> c2){
+    private int getIntersectionSize(Collection<Integer> c1, Collection<Integer> c2){
         c1.retainAll(c2);
         return c1.size();
     }
