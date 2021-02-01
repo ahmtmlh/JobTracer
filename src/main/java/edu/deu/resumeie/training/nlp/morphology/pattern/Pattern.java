@@ -35,7 +35,18 @@ public class Pattern {
 	protected boolean isContinuous() {
 		return this.continuous;
 	}
-	
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("[ ");
+		for(PatternType type : types) {
+			sb.append(type.toString()).append(" ");
+		}
+		sb.append("]");
+		return "Pattern: " + sb.toString();
+	}
+
 	/*
 	 * THIS IS DONE BY THE PATTERN MATCHER
 	 *

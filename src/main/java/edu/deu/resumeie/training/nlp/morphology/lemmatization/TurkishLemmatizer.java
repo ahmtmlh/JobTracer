@@ -53,6 +53,8 @@ public class TurkishLemmatizer implements Lemmatizer {
 			edgeCaseWords.put("olmayan", PatternType.VERB);
 			edgeCaseWords.put("sürücü", PatternType.NOUN);
 			edgeCaseWords.put("seviye", PatternType.ADJ);
+			edgeCaseWords.put("makine", PatternType.NOUN);
+			edgeCaseWords.put("yazılım", PatternType.NOUN);
 		}
 	}
 
@@ -74,7 +76,6 @@ public class TurkishLemmatizer implements Lemmatizer {
 
 	@Override
 	public void lemmatizeSentence(String sentence, boolean removePunctuation) {
-		sentence = sentence.replace("·", "");
 		List<WordAnalysis> analysis = morphology.analyzeSentence(sentence);
 		for (int i = 0; i < analysis.size(); i++) {
 			WordAnalysis current = analysis.get(i);

@@ -125,8 +125,8 @@ public class JobInfoHtmlParser {
     private List<String> textParse(String text) {
 
         List<String> items = new ArrayList<>();
-        boolean containsLists = text.contains("<li>");
-        boolean containsBreakLines = text.contains("<br>");
+        boolean containsLists = text.contains("<li") || text.contains("</li>");
+        boolean containsBreakLines = text.contains("<br>") || text.contains("</br>");
 
         if (containsLists) {
             loadListTags(items, text);

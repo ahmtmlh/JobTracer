@@ -21,6 +21,7 @@ public class TrainingDriver {
 
     public void start() {
         startV2();
+        //testV1();
     }
 
     private void startV2(){
@@ -40,21 +41,43 @@ public class TrainingDriver {
         ie.saveToFile();
         logger.debug("Pattern matching done...");
 
-        logger.debug("Clustering...");
-        try {
-            clustering();
-            logger.debug("Clustering done");
-        } catch (InterruptedException | ProcessException | IOException e) {
-            logger.error(e.getLocalizedMessage(), e);
-        } finally {
-            logger.debug("Deleting Temp files...");
-            try {
-                ie.deleteTempFiles();
-            } catch (IOException e) {
-                logger.error(e.getLocalizedMessage(), e);
-            }
+//        logger.debug("Clustering...");
+//        try {
+//            clustering();
+//            logger.debug("Clustering done");
+//        } catch (InterruptedException | ProcessException | IOException e) {
+//            logger.error(e.getLocalizedMessage(), e);
+//        } finally {
+//            logger.debug("Deleting Temp files...");
+//            try {
+//                ie.deleteTempFiles();
+//            } catch (IOException e) {
+//                logger.error(e.getLocalizedMessage(), e);
+//            }
+//        }
+//        logger.debug("Cleanup completed");
+    }
+
+    private void testV1() {
+        List<InformationExtractor.ListItem> list;
+        try{
+            list = htmlParse(100);
+        } catch (IOException e){
+            logger.fatal(e.getLocalizedMessage(), e);
+            return;
         }
-        logger.debug("Cleanup completed");
+        InformationExtractor.ListItem item = list.get(50);
+        list = new ArrayList<>();
+        list.add(item);
+        logger.debug("Html parsing done...");
+
+        logger.debug(item.toString());
+
+        logger.debug("Pattern Matching...");
+        InformationExtractor ie = new InformationExtractor(3);
+        ie.extractFromList(list);
+        ie.saveToFile();
+        logger.debug("Pattern matching done...");
     }
 
     private List<InformationExtractor.ListItem> htmlParse(int n) throws IOException {
