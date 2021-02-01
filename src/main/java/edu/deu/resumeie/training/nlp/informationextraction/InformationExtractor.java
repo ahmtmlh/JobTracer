@@ -22,7 +22,7 @@ public class InformationExtractor {
 
 	private static final Logger logger = LogManager.getLogger(InformationExtractor.class);
 
-	public static final String VERSION = "V1.3.2";
+	public static final String VERSION = "V1.3.3";
 
 	private static final int COMPLETE_LIST = 0x01;
 	private static final int SINGLE_LIST = 0x02;
@@ -66,7 +66,7 @@ public class InformationExtractor {
 		initLists();
 		lemmatizer = new TurkishLemmatizer();
 		stopWordRemover = new StopWordRemover("stop-words2.tr.txt");
-		tokenizer = new NGramTokenizer(6);
+		tokenizer = new NGramTokenizer(10);
 		pm = new LinguisticPatternMatcher();
 		// HashSet is used for retaining the insertion order, and eliminating duplications.
 		result = new HashMap<>();
@@ -331,14 +331,15 @@ public class InformationExtractor {
 	 */
 	private String removePunctuation(String str) {
 		// "\\p{P}" -> This removes punctuation. 
-		return str.replace("•", "").replace("...", "")
+		return str.replace("•", "").replace("·", "")
+				.replace("...", "")
 				.replace("(", "").replace(")", "")
 				.replace("{", "").replace("}", "")
 				.replace("[", "").replace("]", "")
 				.replace("!", "").replace("?", "")
 				.replace("\"", "").replace("'", "")
-				.replace(":", "").replace(";", "")
-				.replace("%", "").replace("/", "")
+				.replace(":", "").replace(";", " ")
+				.replace("%", "").replace("/", " ")
 				.replace("\\", "").replace("·", "")
 				.replace("_", "").replace("‘", "")
 				.replace("’", "").replace("“", "")
