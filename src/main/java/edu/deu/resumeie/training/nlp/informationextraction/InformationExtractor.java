@@ -28,7 +28,7 @@ public class InformationExtractor {
 	private static final int SINGLE_LIST = 0x02;
 	private static final int MULTI_LIST = 0x04;
 
-	private static final String LIST_FILE = ".data/match_list.conf";
+	private static final String LIST_FILE = "./data/match_list.conf";
 
 	private String saveFileName;
 	
@@ -65,7 +65,7 @@ public class InformationExtractor {
 		// If not, default values will be used
 		initLists();
 		lemmatizer = new TurkishLemmatizer();
-		stopWordRemover = new StopWordRemover("stop-words2.tr.txt");
+		stopWordRemover = new StopWordRemover("./data/stop-words2.tr.txt");
 		tokenizer = new NGramTokenizer(10);
 		pm = new LinguisticPatternMatcher();
 		// HashSet is used for retaining the insertion order, and eliminating duplications.
@@ -265,14 +265,15 @@ public class InformationExtractor {
 		for(String sentence : item.getTexts()){
 			sentence = sentence.trim();
 
-			// If sentence is blank, do nothing.
-			if(sentence.isEmpty()) {
-				return;
-			}
 			// Remove stopwords.
 			if (stopWordRemover.isErrorFree()) {
 				sentence = stopWordRemover.removeStopWords(sentence);
 			}
+			// If sentence is blank, do nothing.
+			if(sentence.isEmpty()) {
+				return;
+			}
+
 			String[] commaSeparated = sentence.split(",");
 			if (checkSeparatedStrings(commaSeparated)) {
 				// All comma separated sentences are matched by pattern rules. Include them
