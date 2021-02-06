@@ -1,4 +1,4 @@
-# nlp
+# JobTracer
 Senior Project - Kariyer.net Job Ad. Analyser and Parser
 
 CME 4201 - CME 4202 Senior Project\
