@@ -6,7 +6,7 @@ import java.util.Map;
 public class SharedObjects {
 
     // --------- CONSTANTS -------- //
-    public static final String VERSION = "V1.4.23";
+    public static final String VERSION = "V1.5.0";
     public static final String DB_CONN_STR = "jdbc:sqlite:./data/data.db";
     //public static final String DB_CONN_STR = "jdbc:mysql://localhost:3306/jobtest?user=root&userUnicode=true&useLegacyDatetimeCode=false&serverTimezone=Turkey&characterEncoding=UTF-8";
 
@@ -15,7 +15,7 @@ public class SharedObjects {
 
     public static final Map<String, Integer> educationStatusValues = new HashMap<>();
 
-    static{
+    static {
         educationStatusValues.put("ilköğretim mezunu", 1);
         educationStatusValues.put("lise öğrencisi", 2);
         educationStatusValues.put("lise mezunu", 3);

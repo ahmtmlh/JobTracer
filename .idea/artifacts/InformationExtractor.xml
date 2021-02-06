@@ -7,7 +7,7 @@
       <element id="library" level="project" name="Maven: zemberek-nlp:zemberek-morphology:0.17.1" />
       <element id="library" level="project" name="Maven: zemberek-nlp:zemberek-core:0.17.1" />
       <element id="library" level="project" name="Maven: zemberek-nlp:zemberek-normalization:0.17.1" />
-      <element id="module-output" name="nlp" />
+      <element id="module-output" name="jobtracer" />
     </root>
   </artifact>
 </component>
