@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/nlp.iml" filepath="$PROJECT_DIR$/nlp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/jobtracer.iml" filepath="$PROJECT_DIR$/jobtracer.iml" />
     </modules>
   </component>
 </project>
