@@ -1,6 +1,8 @@
 import socket
 import json
 import threading
+import signal
+
 
 from cluster_predict import predictCnt, predictTfidf, init_clustering
 
@@ -69,5 +71,6 @@ def start_connection():
 if __name__ == '__main__':
     #Init pickle modules
     init_clustering()
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
     #Start listening for connections
     start_connection()
