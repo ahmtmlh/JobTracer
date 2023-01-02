@@ -1,0 +1,271 @@
+swift
+linux
+Fortran
+kotlin
+android
+backend
+back end
+gömülü sistem
+iot
+embedded systems
+makine öğrenmesi
+machine learning
+önyüz
+ön yüz
+frontend
+front end
+fullstack
+full stack
+ios
+Perl
+Rust
+html
+Unity
+Unity3d
+python
+java
+javascript
+R 
+php
+ViSUAL BASiC
+GO
+RUBY
+ASP. NET CORE
+ASP. NET
+ADO.NET
+ASP.NET AJAX
+ASP.NET 
+MVC
+C 
+SAP 
+GİT 
+ASP.NET CORE
+i2c
+ASP.NETCORE
+ASP.NET
+C#.NET
+.NET
+.NET CORE
+.NET Compact Framework
+.NET Remoting
+Backbone.js
+CruiseControl.rb
+D3.js
+Dice.com
+Ember.js
+Force.com
+H.264/MPEG-4 AVC
+H.323
+IEEE 802.11
+IEEE 802.11n
+IEEE 802.1X
+Node.js
+ODP.NET
+Paint.NET
+Salesforce.com
+Salesforce.com administration
+Spring.NET
+Underscore.js
+Visual Basic .NET
+Web 2.0
+A+
+C#
+C++
+C++Builder
+CDIA+
+COM+
+Crypto++
+CTP+
+CTT+
+Embedded C++
+Google+
+HSPA+
+Linux
+LSA++
+Network+
+Notepad++
+PDI+
+Security+
+Server+
+Storage+
+SystemBuilder/SB+
+TACACS+
+Visual C++
+X++
+A/B testing
+AS/400 Control Language
+Break/Fix
+CA OPS/MVS
+Client/server
+DOS/4G
+ER/Studio
+ESQL/C
+ESS/MSS
+Fit/gap analysis
+IPX/SPX
+ISO/IEC 20000
+ISO/IEC 27000-series
+ISO/IEC 27001:2005
+Job Entry Subsystem 2/3
+LabWindows/CVI
+Max/MSP
+OS/2
+OS/390
+PL/I
+PL/SQL
+Pro/Mechanica
+Query/400
+S/MIME
+SAP PP/DS
+SAP PP/PI
+SAP R/3
+SAP/MACRO
+SAS/Access
+SAS/ASSIST
+SAS/BASE
+SAS/Connect
+SAS/Enterprise Miner
+SAS/ETL
+SAS/ETS
+SAS/GRAPH
+SAS/MACROS
+SAS/ODS
+SAS/Reports
+SAS/SHARE
+SAS/SQL
+SAS/STAT
+SMP/E
+SQL/400
+TCP/IP
+VM/CMS
+z/Linux
+z/OS
+z/VM
+z/VSE
+10BASE-T
+3G-324M
+Abend-AID
+Activity-based
+Alcatel-Lucent
+Allen-Bradley
+As-is
+Aspect-oriented
+Author-it
+Available-to-promise
+Behavior-driven
+Black-box
+Control-M
+Business-IT
+Business-to-business
+Business-to-consumer
+CA-1
+CA-11
+CA-7
+Call-recording
+CA-Telon
+C-level
+Command-line
+Complete-linkage
+Computer-aided
+decision-making
+Cost-benefit
+Counter-terrorism
+Cross-browser
+Cross-functional
+Data-driven
+Data-flow
+DCGS-A
+DO-160
+DO-178B
+DO-178C
+DO-254
+Dodd-Frank
+Domain-driven
+E-learning
+self-service
+End-user
+9-1-1
+e-Pro
+E-procurement
+E-statement
+Far-western
+Go-to-market
+Gramm-Leach-Bliley
+H.264/MPEG-4
+Hardware-in-the-loop
+High-level
+HP-UX
+Human-computer
+Hyper-V
+Informix-4GL
+ICD-10
+ICD-9
+Instructor-led
+ISO/IEC
+27000-series
+JAX-RPC
+JAX-RS
+JAX-WS
+q-flats
+Kernel-based
+Keyword-driven
+k-means
+k-medians
+k-medoids
+k-nearest
+Land-use
+Location-based
+LS-DYNA
+Maximum-entropy
+Mean-shift
+Meta-data
+App-V
+Mixed-signal
+Mobile-device
+Model-based
+MPEG-2
+MS-DOS
+Multi-core
+Multi-factor
+Named-entity
+800-53
+Non-functional
+Non-profit
+NTFS-3G
+Objective-C
+Object-relational
+Physical-to-Virtual
+Post-production
+Process-driven
+Procure-to-pay
+QF-Test
+Real-time
+Risk-based
+RS-232
+RT-PCR
+Auto-ID
+IS-U
+MM-PUR
+Sarbanes-Oxley
+scikit-learn
+Screen-printing
+Security-Enhanced
+Self-organizing
+Semi-supervised
+Set-top
+Single-linkage
+Solid-state
+S-PLUS
+SR-IOV
+Test-driven
+To-be
+Transact-SQL
+T-SQL
+User-centered
+V-Model
+V-Ray
+W-CDMA
+White-box
+Word-sense
+e-ticaret
+ar-ge

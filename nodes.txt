@@ -1,0 +1,1 @@
+[php,t-sql,asp.net,hyper-v,html,linux,sap,C,python,fortran,asp.net core,mvc,ruby,c#,ios,java,e-ticaret,backend,go,android,javascript]

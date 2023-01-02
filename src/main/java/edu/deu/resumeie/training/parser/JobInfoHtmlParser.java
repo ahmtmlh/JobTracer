@@ -18,7 +18,8 @@ public class JobInfoHtmlParser {
             "İŞ GEREKSİNİMLERİ",
             "GENEL İŞ TANIMI",
             "İŞ ÖZELLİKLERİ",
-            "İŞ AÇIKLAMASI");
+            "İŞ AÇIKLAMASI",
+            "SORUMLULUKLAR");
 
     private static final List<String> employeeDescDelimiters = Arrays.asList(
             "GENEL TANITIM",
@@ -169,7 +170,7 @@ public class JobInfoHtmlParser {
 
     private String changeHTMLChars(String text) {
         text = text.replace("&nbsp;", " ").replace("&lt;", "<").
-                replace("&gt;", ">").replace("·", "");
+                replace("&gt;", ">").replace("·", "").replace("•", "");
         return text.trim();
     }
 

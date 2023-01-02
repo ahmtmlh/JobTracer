@@ -185,7 +185,10 @@ public class InformationExtractor {
 	 * @return True if passes the test, false if not.
 	 */
 	private boolean matchPattern(List<PatternType> posTags, int n) {
-		boolean completeMatch = false;
+
+		return true;
+
+		/*boolean completeMatch = false;
 		boolean singleMatch = false;
 		boolean multipleMatch = false;
 		// Check for complete pattern matches
@@ -209,7 +212,7 @@ public class InformationExtractor {
 				multipleMatch = (count >= Math.min(n, minMatchCount));
 			}
 		}
-		return completeMatch || singleMatch || multipleMatch;
+		return completeMatch || singleMatch || multipleMatch;*/
 	}
 
 	/**
@@ -323,8 +326,7 @@ public class InformationExtractor {
 	
 	/**
 	 * Remove the punctuation part of the string, to add to the list
-	 * 
-	 * This is used to change some of the punctuation characters, rather than changing them all
+	 * This is used to change some punctuation characters, rather than changing them all
 	 * with a Regex command.
 	 * 
 	 * @param str String to remove punctuation from
@@ -356,6 +358,11 @@ public class InformationExtractor {
 	public void extractFromList(List<ListItem> items) {
 
 		for (ListItem item : items) {
+
+			if (item.id.equals("2370521")){
+				System.out.println("Breaking for the record 2370521...");
+			}
+
 			extractFromListItem(item);
 		}
 	}
